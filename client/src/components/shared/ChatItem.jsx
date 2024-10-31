@@ -2,7 +2,8 @@
 
 import React, { memo } from 'react';
 import { Stack, Typography, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link } from '../styles/StyledComponents.jsx';
+import AvatarCard from './AvatarCard.jsx';
 
 const ChatItem = ({
   avatar=[],
@@ -13,11 +14,11 @@ const ChatItem = ({
   isOnline,
   newMessageAlert,
   index=0,
-  handleDeleteChatOpen
+  handleDeleteChat
 }) => {
   return (
-    <Link to={`/chat/${_id}`} onContextMenu={(e) => handleDeleteChatOpen(e, _id, groupChat)} sx={{
-      padding: "0"
+    <Link to={`/chat/${_id}`} onContextMenu={(e) => handleDeleteChat(e, _id, groupChat)} sx={{
+      padding: 0
     }}>
     <div style={{
       display: "flex",
@@ -30,7 +31,7 @@ const ChatItem = ({
     }}>
 
 
-    {/* Avatar */}
+    <AvatarCard avatar={avatar} />
 
     <Stack>
     <Typography >{name}</Typography>
@@ -43,7 +44,14 @@ const ChatItem = ({
 
     {
       isOnline && <Box sx={{
-        backgroundColor: "red"
+        width: "10px",
+        height: "10px",
+          borderRadius: "50%",
+          backgroundColor: "green",
+          position: "absolute",
+          top: "50%",
+          right: "1rem",
+          transform: "translateY(-50%)",
       }}/>
     }
     </div>
