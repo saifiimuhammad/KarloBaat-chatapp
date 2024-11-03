@@ -5,6 +5,7 @@ import { useInputValidation, useStrongPassword, useFileHandler } from '6pp';
 import { CameraAlt as CameraAltIcon } from '@mui/icons-material';
 import { VisuallyHiddenInput } from '../components/styles/StyledComponents.jsx';
 import { usernameValidator } from '../utils/validators.js';
+import { bgGradient } from '../constants/colors.js';
 
 const Login = () => {
 
@@ -28,7 +29,7 @@ const Login = () => {
 
   return (
     <div style={{
-      backgroundImage: "linear-gradient(rgb(255,225,209), rgb(249,159,159))"
+      backgroundImage: bgGradient
     }}>
     <Container component={"main"}  maxWidth='xs' sx={{
       height: "100vh",
