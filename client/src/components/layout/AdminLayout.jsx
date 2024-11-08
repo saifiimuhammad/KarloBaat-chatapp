@@ -127,7 +127,8 @@ return (
     },
       position: "fixed",
       right: "1rem",
-      top: "1rem"
+      top: "1rem",
+      zIndex: 1000
   }}>
   <IconButton onClick={handleMobile}>
   {

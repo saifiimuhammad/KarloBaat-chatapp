@@ -27,7 +27,7 @@ import {
   Delete as DeleteIcon, 
   Add as AddIcon 
 } from '@mui/icons-material';
-import { matteBlack, bgGradient } from '../constants/colors.js';
+import { matteBlack } from '../constants/colors.js';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Link } from '../components/styles/StyledComponents.jsx';
 import AvatarCard from '../components/shared/AvatarCard.jsx';
@@ -240,7 +240,6 @@ const Groups = () => {
 
 const GroupsList = ({ w="100%", myGroups=[], chatId }) => (
   <Stack width={w} sx={{
-    backgroundImage: bgGradient,
       height: "100%",
       overflow: "auto"
   }}>

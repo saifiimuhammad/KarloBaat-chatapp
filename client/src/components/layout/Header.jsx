@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense, lazy } from 'react';
 import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Backdrop } from '@mui/material';
-import { orange } from '../../constants/colors.js';
+import { matteBlack } from '../../constants/colors.js';
 import { Menu as MenuIcon, Search as SearchIcon, Add as AddIcon, Group as GroupIcon, Logout as LogoutIcon, Notifications as NotificationsIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -47,7 +47,7 @@ const Header = () => {
       flexGrow: 1,
     }} height="4rem">
     <AppBar position="static" sx={{
-      bgcolor: orange,
+      bgcolor: matteBlack,
     }}>
     <Toolbar>
     <Typography variant="h6" sx={{
