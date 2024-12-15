@@ -2,7 +2,9 @@
 
 
 import mongoose, { Schema, model } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
+const { hash } = bcrypt;
 
 const schema = new Schema({
   name: {
@@ -33,6 +35,13 @@ const schema = new Schema({
   timeStamp: true
 });
 
+
+schema.pre("save", async function(next){
+
+  if(!this.isModified("password")) next();
+  
+  this.password = await hash(this.password, 10);
+})
 
 
 export const User = mongoose.models.User || model('User', schema);
