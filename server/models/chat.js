@@ -28,8 +28,8 @@ const schema = new Schema({
       ref: 'User'
     }
   ]
-  , {
-  timeStamp: true
+}, {
+  timestamps: true
 });
 
 

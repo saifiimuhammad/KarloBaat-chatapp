@@ -5,6 +5,7 @@ import { connectDb } from './utils/features.js';
 import { errorMiddleware } from './middlewares/error.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import { createMessagesInAChat } from './seeders/chat.js';
 
 
 import userRoutes from './routes/user.js';
@@ -23,7 +24,6 @@ const PORT = process.env.PORT || 3000;
 
 
 connectDb(mongoURI);
-
 
 const app = express();
 
