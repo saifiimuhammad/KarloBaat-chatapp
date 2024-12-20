@@ -14,6 +14,15 @@ import {
   getMessages,
 } from "../controllers/chat.js";
 import { attachmentsMulter } from "../middlewares/multer.js";
+import {
+  addMemberValidator,
+  chatIdValidator,
+  newGroupValidator,
+  removeMemberValidator,
+  renameValidator,
+  sendAttachementsValidator,
+  validateHandler,
+} from "../lib/validators.js";
 
 const app = express.Router();
 
@@ -21,14 +30,24 @@ const app = express.Router();
 
 app.use(isAuthenticated);
 
-app.post("/new", newGroupChat);
+app.post("/new", newGroupValidator(), validateHandler, newGroupChat);
 app.get("/my", getMyChats);
 app.get("/my/groups", getMyGroups);
-app.put("/addmembers", addMembers);
-app.put("/remove", removeMember);
-app.delete("/leave/:id", leaveGroup);
-app.post("/message", attachmentsMulter, sendAttachements);                      // Send Attachments
-app.get("/message/:id", getMessages);                                           // Get Messages
-app.route("/:id").get(getChatDetails).put(renameGroup).delete(deleteChat);      // Get Chat details, Rename, Remove
+app.put("/addmembers", addMemberValidator(), validateHandler, addMembers);
+app.put("/remove", removeMemberValidator(), validateHandler, removeMember);
+app.delete("/leave/:id", chatIdValidator(), validateHandler, leaveGroup);
+app.post(
+  "/message",
+  attachmentsMulter,
+  sendAttachementsValidator(),
+  validateHandler,
+  sendAttachements
+); // Send Attachments
+app.get("/message/:id", chatIdValidator(), validateHandler, getMessages); // Get Messages
+app
+  .route("/:id")
+  .get(chatIdValidator(), validateHandler, getChatDetails)
+  .put(renameValidator(), validateHandler, renameGroup)
+  .delete(chatIdValidator(), validateHandler, deleteChat); // Get Chat details, Rename, Remove
 
 export default app;

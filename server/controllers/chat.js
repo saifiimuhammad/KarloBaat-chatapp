@@ -215,6 +215,8 @@ const sendAttachements = TryCatch(async (req, res, next) => {
 
   if (files.length < 1)
     return next(new ErrorHandler("Please provide attachments", 400));
+  if (files.length > 6)
+    return next(new ErrorHandler("Only 5 files are allowed at a time", 400));
 
   // Upload files here
 
