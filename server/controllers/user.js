@@ -1,12 +1,17 @@
-import { User } from "../models/user.js";
-import { Chat } from "../models/chat.js";
-import { Request } from "../models/request.js";
-import { sendToken, cookieOptions, emitEvent } from "../utils/features.js";
-import { TryCatch } from "../middlewares/error.js";
-import { ErrorHandler } from "../utils/utility.js";
 import bcrypt from "bcryptjs";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
 import { getOtherMembers } from "../lib/helper.js";
+import { TryCatch } from "../middlewares/error.js";
+import { Chat } from "../models/chat.js";
+import { Request } from "../models/request.js";
+import { User } from "../models/user.js";
+import {
+  cookieOptions,
+  emitEvent,
+  sendToken,
+  uploadFilesToCloudinary,
+} from "../utils/features.js";
+import { ErrorHandler } from "../utils/utility.js";
 
 const { compare } = bcrypt;
 
@@ -17,9 +22,11 @@ const newUser = TryCatch(async (req, res, next) => {
   const file = req.file;
   if (!file) return next(new ErrorHandler("Please upload avatar", 400));
 
+  const result = await uploadFilesToCloudinary([file]);
+
   const avatar = {
-    public_id: "djfjfdk",
-    url: "djdjfjfjf",
+    public_id: result[0].public_id,
+    url: result[0].url,
   };
 
   const user = await User.create({
@@ -231,13 +238,13 @@ const getMyFriends = TryCatch(async (req, res, next) => {
 });
 
 export {
-  login,
-  newUser,
-  getMyProfile,
-  logout,
-  searchUser,
-  sendFriendRequest,
   acceptFriendRequest,
   getAllNotifications,
   getMyFriends,
+  getMyProfile,
+  login,
+  logout,
+  newUser,
+  searchUser,
+  sendFriendRequest,
 };

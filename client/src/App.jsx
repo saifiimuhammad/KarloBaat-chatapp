@@ -5,7 +5,8 @@ import { LayoutLoader } from "./components/layout/Loaders.jsx";
 import axios from "axios";
 import { server } from "./constants/config.js";
 import { useDispatch, useSelector } from "react-redux";
-import { userNotExists } from "./redux/reducers/auth.js";
+import { userExists, userNotExists } from "./redux/reducers/auth.js";
+import { Toaster } from "react-hot-toast";
 
 const Home = lazy(() => import("./pages/Home.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
@@ -29,9 +30,9 @@ const App = () => {
   useEffect(() => {
     console.log(server);
     axios
-      .get(`${server}/api/v1/user`)
-      .then((res) => console.log(res))
-      .catch((err) => dispatch(userNotExists()));
+      .get(`${server}/api/v1/user/me`, { withCredentials: true })
+      .then(({ data }) => dispatch(userExists(data.user)))
+      .catch(() => dispatch(userNotExists()));
   }, []);
 
   return loader ? (
@@ -64,6 +65,8 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+
+      <Toaster position="bottom-center" />
     </BrowserRouter>
   );
 };
