@@ -36,6 +36,15 @@ const api = createApi({
       }),
       keepUnusedDataFor: 0,
     }),
+    acceptFriendRequest: builder.mutation({
+      query: (body) => ({
+        url: "user/acceptrequest",
+        method: "PUT",
+        body,
+        credentials: "include",
+      }),
+      invalidatesTags: ["Chat"],
+    }),
   }),
 });
 
@@ -45,4 +54,5 @@ export const {
   useLazySearchUserQuery,
   useSendFriendRequestMutation,
   useGetNotificationsQuery,
+  useAcceptFriendRequestMutation,
 } = api;

@@ -12,18 +12,36 @@ import React, { memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useErrors } from "../../hooks/hooks.jsx";
 import { transformImage } from "../../lib/features.js";
-import { useGetNotificationsQuery } from "../../redux/api/api.js";
+import {
+  useAcceptFriendRequestMutation,
+  useGetNotificationsQuery,
+} from "../../redux/api/api.js";
 
 import { setIsNotification } from "../../redux/reducers/misc.js";
+import toast from "react-hot-toast";
 
 const Notifications = () => {
   const { isLoading, data, error, isError } = useGetNotificationsQuery();
+
+  const [acceptRequest] = useAcceptFriendRequestMutation();
 
   const { isNotification } = useSelector((state) => state.misc);
 
   const dispatch = useDispatch();
 
-  const friendRequestHandler = ({ _id, accept }) => {};
+  const friendRequestHandler = async ({ _id, accept }) => {
+    dispatch(setIsNotification(false));
+    try {
+      const res = await acceptRequest({ requestId: _id, accept });
+      if (res.data?.success) {
+        console.log("Socket");
+        toast.success(res.data.message);
+      } else toast.error(res.data?.error || "An error occurred");
+    } catch (error) {
+      toast.error("Something went wrong!");
+      console.log(error);
+    }
+  };
 
   const closeHandler = () => dispatch(setIsNotification(false));
 
