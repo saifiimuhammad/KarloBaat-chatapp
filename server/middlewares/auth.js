@@ -1,9 +1,11 @@
 import { adminSecretKey } from "../app.js";
+import { KARLOBAAT_ADMIN_TOKEN, KARLOBAAT_TOKEN } from "../constants/config.js";
+import { User } from "../models/user.js";
 import { ErrorHandler } from "../utils/utility.js";
 import jwt from "jsonwebtoken";
 
 const isAuthenticated = (req, res, next) => {
-  const token = req.cookies["karlobaat-token"];
+  const token = req.cookies[KARLOBAAT_TOKEN];
 
   if (!token)
     return next(new ErrorHandler("Please login to access thus route", 401));
@@ -14,7 +16,7 @@ const isAuthenticated = (req, res, next) => {
 };
 
 const adminOnly = (req, res, next) => {
-  const token = req.cookies["karlobaat-admin-token"];
+  const token = req.cookies[KARLOBAAT_ADMIN_TOKEN];
 
   if (!token)
     return next(new ErrorHandler("Only admin can access this route", 401));
@@ -26,4 +28,23 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
-export { isAuthenticated, adminOnly };
+const socketAuthenticator = async (err, socket, next) => {
+  try {
+    if (err) return next(err);
+    const authToken = socket.request.cookies[KARLOBAAT_TOKEN];
+    if (!authToken)
+      return next(new ErrorHandler("Please login to access this route", 401));
+    const decodedData = jwt.verify(authToken, process.env.JWT_SECRET);
+
+    const user = await User.findById(decodedData._id);
+    if (!user) return next(new ErrorHandler("User not found", 404));
+
+    socket.user = user;
+    next();
+  } catch (error) {
+    console.log(error);
+    return next(new ErrorHandler("Please login to access this route", 401));
+  }
+};
+
+export { isAuthenticated, adminOnly, socketAuthenticator };
