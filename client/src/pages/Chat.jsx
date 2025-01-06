@@ -3,28 +3,31 @@ import {
   Send as SendIcon,
 } from "@mui/icons-material";
 import { IconButton, Skeleton, Stack } from "@mui/material";
-import React, { useContext, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import AppLayout from "../components/layout/AppLayout.jsx";
 
 import { InputBox } from "../components/styles/StyledComponents.jsx";
 import { grayColor, orange } from "../constants/colors.js";
 
+import { useInfiniteScrollTop } from "6pp";
+import { useDispatch } from "react-redux";
 import FileMenu from "../components/dialogs/FileMenu.jsx";
 import MessageComponent from "../components/shared/MessageComponent.jsx";
 import { NEW_MESSAGE } from "../constants/events.js";
-import { sampleMessage } from "../constants/sampleData.js";
 import { useErrors, useSocketEvents } from "../hooks/hooks.jsx";
 import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api.js";
+import { setIsFileMenu } from "../redux/reducers/misc.js";
 import { getSocket } from "../socket.jsx";
-import { useInfiniteScrollTop } from "6pp";
 
 const Chat = ({ chatId, user }) => {
   const containerRef = useRef(null);
   const socket = getSocket();
+  const dispatch = useDispatch();
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [page, setPage] = useState(1);
+  const [fileMenuAnchor, setFileMenuAnchor] = useState(null);
 
   const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
   const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
@@ -53,9 +56,18 @@ const Chat = ({ chatId, user }) => {
     setMessage("");
   };
 
-  const newMessagesHandler = (data) => {
-    setMessages((prev) => [...prev, data]);
+  const handleFileOpen = (e) => {
+    dispatch(setIsFileMenu(true));
+    setFileMenuAnchor(e.currentTarget);
   };
+
+  const newMessagesHandler = useCallback(
+    (data) => {
+      if (data.chatId !== chatId) return;
+      setMessages((prev) => [...prev, data]);
+    },
+    [chatId]
+  );
 
   const eventHandlers = { [NEW_MESSAGE]: newMessagesHandler };
 
@@ -81,8 +93,8 @@ const Chat = ({ chatId, user }) => {
           overflowY: "auto",
         }}
       >
-        {allMessages.map((i) => {
-          return <MessageComponent key={i._id} message={i} user={user} />;
+        {allMessages.map((i, key) => {
+          return <MessageComponent key={key} message={i} user={user} />;
         })}
       </Stack>
 
@@ -105,6 +117,7 @@ const Chat = ({ chatId, user }) => {
               left: "1.5rem",
               rotate: "30deg",
             }}
+            onClick={handleFileOpen}
           >
             <AttachFileIcon />
           </IconButton>
@@ -132,7 +145,7 @@ const Chat = ({ chatId, user }) => {
         </Stack>
       </form>
 
-      <FileMenu />
+      <FileMenu anchorE1={fileMenuAnchor} chatId={chatId} />
     </>
   );
 };
