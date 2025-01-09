@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSendAttachmentsMutation } from "../../redux/api/api";
 import { setIsFileMenu, setUploadingLoader } from "../../redux/reducers/misc";
 
-const FileMenu = ({ anchorE1, chatId }) => {
+const FileMenu = ({ anchorEl, chatId }) => {
   const { isFileMenu } = useSelector((state) => state.misc);
   const dispatch = useDispatch();
 
@@ -39,9 +39,9 @@ const FileMenu = ({ anchorE1, chatId }) => {
         formData.append("files", file);
       });
       const res = await sendAttachments(formData);
-
-      if (res.data) toast.success(`${key} sent successfully`, { id: toastId });
-      else toast.error(`Couldn't send ${key}`, { id: toastId });
+      if (res.data) {
+        toast.success(`${key} sent successfully`, { id: toastId });
+      } else toast.error(`Couldn't send ${key}`, { id: toastId });
     } catch (error) {
       toast.error(error, { id: toastId });
     } finally {
@@ -50,7 +50,7 @@ const FileMenu = ({ anchorE1, chatId }) => {
   };
 
   return (
-    <Menu anchorEl={anchorE1} open={isFileMenu} onClose={closeHandler}>
+    <Menu anchorEl={anchorEl} open={isFileMenu} onClose={closeHandler}>
       <div
         style={{
           width: "10rem",

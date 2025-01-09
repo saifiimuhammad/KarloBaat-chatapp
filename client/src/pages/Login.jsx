@@ -18,13 +18,13 @@ import { userExists } from "../redux/reducers/auth.js";
 
 import { CameraAlt as CameraAltIcon } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "../components/styles/StyledComponents.jsx";
-import { bgGradient } from "../constants/colors.js";
+import { bgGradient, primary, primaryHover } from "../constants/colors.js";
 import { usernameValidator } from "../utils/validators.js";
 
 const Login = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const dispatch = useDispatch();
 
-  const toggleLogin = () => setIsLogin((prev) => !prev);
+  const [isLogin, setIsLogin] = useState(true);
 
   const name = useInputValidation("");
   const bio = useInputValidation("");
@@ -32,7 +32,7 @@ const Login = () => {
   const password = useStrongPassword();
   const avatar = useFileHandler("single");
 
-  const dispatch = useDispatch();
+  const toggleLogin = () => setIsLogin((prev) => !prev);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -146,9 +146,15 @@ const Login = () => {
                   onChange={password.changeHandler}
                 />
                 <Button
-                  sx={{ marginTop: "1rem" }}
+                  sx={{
+                    marginTop: "1rem",
+                    backgroundColor: primary,
+                    ":hover": {
+                      backgroundColor: primaryHover,
+                    },
+                  }}
                   variant="contained"
-                  color="primary"
+                  // color="primary"
                   type="submit"
                   fullWidth
                 >
@@ -270,7 +276,13 @@ const Login = () => {
                   </Typography>
                 )}
                 <Button
-                  sx={{ marginTop: "1rem" }}
+                  sx={{
+                    marginTop: "1rem",
+                    backgroundColor: primary,
+                    ":hover": {
+                      backgroundColor: primaryHover,
+                    },
+                  }}
                   variant="contained"
                   color="primary"
                   type="submit"

@@ -3,7 +3,10 @@ import { server } from "../../constants/config.js";
 
 const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: `${server}/api/v1/` }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${server}/api/v1/`,
+    credentials: "include",
+  }),
   tagTypes: ["Chat", "User", "Message"],
   endpoints: (builder) => ({
     myChats: builder.query({
@@ -61,7 +64,7 @@ const api = createApi({
         url: `chat/message/${chatId}?page=${page}`,
         credentials: "include",
       }),
-      providesTags: ["Message"],
+      keepUnusedDataFor: 0,
     }),
     sendAttachments: builder.mutation({
       query: (body) => ({

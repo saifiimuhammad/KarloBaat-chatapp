@@ -205,7 +205,7 @@ const leaveGroup = TryCatch(async (req, res, next) => {
   });
 });
 
-const sendAttachements = TryCatch(async (req, res, next) => {
+const sendAttachments = TryCatch(async (req, res, next) => {
   const { chatId } = req.body;
 
   const [chat, me] = await Promise.all([
@@ -226,10 +226,10 @@ const sendAttachements = TryCatch(async (req, res, next) => {
 
   const attachments = await uploadFilesToCloudinary(files);
   const messageForDb = {
-    content: "",
-    attachments,
-    sender: me._id,
     chat: chatId,
+    content: "",
+    sender: me._id,
+    attachments,
   };
 
   const messageForRealTime = {
@@ -246,6 +246,7 @@ const sendAttachements = TryCatch(async (req, res, next) => {
     message: messageForRealTime,
     chatId,
   });
+  // emitEvent(req, NEW_MESSAGE, chat.members, messageForRealTime);
 
   emitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId });
 
@@ -384,5 +385,5 @@ export {
   newGroupChat,
   removeMember,
   renameGroup,
-  sendAttachements,
+  sendAttachments,
 };

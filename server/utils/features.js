@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { v4 as uuid } from "uuid";
 import { getBase64, getSockets } from "../lib/helper.js";
+import { ErrorHandler } from "./utility.js";
 
 const cookieOptions = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
@@ -38,31 +39,23 @@ const emitEvent = (req, event, users, data) => {
 };
 
 const uploadFilesToCloudinary = async (files = []) => {
-  const uploadPromises = files.map((file) => {
-    return new Promise((resolve, reject) => {
-      cloudinary.uploader.upload(
-        getBase64(file),
-        {
-          resource_type: "auto",
-          public_id: uuid(),
-        },
-        (err, result) => {
-          if (err) reject(err);
-          resolve(result);
-        }
-      );
-    });
-  });
-
   try {
+    const uploadPromises = files.map((file) =>
+      cloudinary.uploader.upload(getBase64(file), {
+        resource_type: "auto",
+        public_id: uuid(),
+      })
+    );
+
     const results = await Promise.all(uploadPromises);
-    const formattedResults = results.map((result) => ({
+
+    return results.map((result) => ({
       public_id: result.public_id,
       url: result.secure_url,
     }));
-    return formattedResults;
   } catch (error) {
-    throw new Error("Error uploading files to Cloudinary", error);
+    console.error("Cloudinary upload error:", error.message);
+    throw new ErrorHandler("Error uploading files to Cloudinary", 500);
   }
 };
 

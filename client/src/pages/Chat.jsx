@@ -3,7 +3,7 @@ import {
   Send as SendIcon,
 } from "@mui/icons-material";
 import { IconButton, Skeleton, Stack } from "@mui/material";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import AppLayout from "../components/layout/AppLayout.jsx";
 
 import { InputBox } from "../components/styles/StyledComponents.jsx";
@@ -53,6 +53,7 @@ const Chat = ({ chatId, user }) => {
 
     // Emmitting message to server
     socket.emit(NEW_MESSAGE, { chatId, members, message });
+    console.log(messages);
     setMessage("");
   };
 
@@ -61,10 +62,19 @@ const Chat = ({ chatId, user }) => {
     setFileMenuAnchor(e.currentTarget);
   };
 
+  useEffect(() => {
+    return () => {
+      setMessages([]);
+      setMessage("");
+      setOldMessages([]);
+      setPage(1);
+    };
+  }, [chatId]);
+
   const newMessagesHandler = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
-      setMessages((prev) => [...prev, data]);
+      setMessages((prev) => [...prev, data.message]);
     },
     [chatId]
   );
@@ -145,7 +155,7 @@ const Chat = ({ chatId, user }) => {
         </Stack>
       </form>
 
-      <FileMenu anchorE1={fileMenuAnchor} chatId={chatId} />
+      <FileMenu anchorEl={fileMenuAnchor} chatId={chatId} />
     </>
   );
 };

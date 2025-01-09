@@ -7,7 +7,7 @@ import {
   addMembers,
   removeMember,
   leaveGroup,
-  sendAttachements,
+  sendAttachments,
   getChatDetails,
   renameGroup,
   deleteChat,
@@ -41,7 +41,7 @@ app.post(
   attachmentsMulter,
   sendAttachementsValidator(),
   validateHandler,
-  sendAttachements
+  sendAttachments
 ); // Send Attachments
 app.get("/message/:id", chatIdValidator(), validateHandler, getMessages); // Get Messages
 app
