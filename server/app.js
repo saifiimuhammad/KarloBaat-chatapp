@@ -7,7 +7,11 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
 import { corsOptions } from "./constants/config.js";
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/events.js";
+import {
+  NEW_MESSAGE,
+  NEW_MESSAGE_ALERT,
+  START_TYPING,
+} from "./constants/events.js";
 import { getSockets } from "./lib/helper.js";
 import { socketAuthenticator } from "./middlewares/auth.js";
 import { errorMiddleware } from "./middlewares/error.js";
@@ -96,6 +100,11 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error(error);
     }
+  });
+
+  socket.on(START_TYPING, ({ members, chatId }) => {
+    const membersSocket = getSockets(members);
+    io.to(membersSocket).emit(START_TYPING, { chatId });
   });
 
   socket.on("disconnect", () => {

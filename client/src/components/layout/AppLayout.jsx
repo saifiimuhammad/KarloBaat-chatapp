@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useMyChatsQuery } from "../../redux/api/api.js";
 import Title from "../shared/Title.jsx";
 import ChatList from "../specific/ChatList.jsx";
@@ -16,6 +16,7 @@ import {
 } from "../../redux/reducers/chat.js";
 import { setIsMobile } from "../../redux/reducers/misc.js";
 import { getSocket } from "../../socket.jsx";
+import { getorSaveFromStorage } from "../../lib/features.js";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -34,6 +35,10 @@ const AppLayout = () => (WrappedComponent) => {
 
     useErrors([{ isError, error }]);
 
+    useEffect(() => {
+      getorSaveFromStorage({ key: NEW_MESSAGE_ALERT, value: newMessagesAlert });
+    }, [newMessagesAlert]);
+
     const handleDeleteChat = (e, _id, groupChat) => {
       e.preventDefault();
       console.log("Delete chst: ", _id, groupChat);
@@ -41,9 +46,13 @@ const AppLayout = () => (WrappedComponent) => {
 
     const handleMobileClose = () => dispatch(setIsMobile(false));
 
-    const newMessageAlertHandler = useCallback((data) => {
-      dispatch(setNewMessagesAlert(data));
-    }, []);
+    const newMessageAlertHandler = useCallback(
+      (data) => {
+        if (data.chatId === chatId) return;
+        dispatch(setNewMessagesAlert(data));
+      },
+      [chatId]
+    );
     const newRequestHandler = useCallback(() => {
       dispatch(incrementNotification());
     }, []);
