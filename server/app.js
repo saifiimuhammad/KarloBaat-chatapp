@@ -11,6 +11,7 @@ import {
   NEW_MESSAGE,
   NEW_MESSAGE_ALERT,
   START_TYPING,
+  STOP_TYPING,
 } from "./constants/events.js";
 import { getSockets } from "./lib/helper.js";
 import { socketAuthenticator } from "./middlewares/auth.js";
@@ -105,6 +106,11 @@ io.on("connection", (socket) => {
   socket.on(START_TYPING, ({ members, chatId }) => {
     const membersSocket = getSockets(members);
     io.to(membersSocket).emit(START_TYPING, { chatId });
+  });
+
+  socket.on(STOP_TYPING, ({ members, chatId }) => {
+    const membersSocket = getSockets(members);
+    io.to(membersSocket).emit(STOP_TYPING, { chatId });
   });
 
   socket.on("disconnect", () => {
