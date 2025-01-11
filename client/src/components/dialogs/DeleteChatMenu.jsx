@@ -2,9 +2,9 @@ import {
   Delete as DeleteIcon,
   ExitToApp as ExitToAppIcon,
 } from "@mui/icons-material";
-import { Menu, Typography } from "@mui/material";
+import { Menu, Stack, Typography } from "@mui/material";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAsyncMutation } from "../../hooks/hooks";
 import {
@@ -15,7 +15,6 @@ import { setIsDeleteMenu } from "../../redux/reducers/misc";
 
 const DeleteChatMenu = ({ dispatch, deleteMenuAnchor }) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const { isDeleteMenu, selectedDeleteChat } = useSelector(
     (state) => state.misc

@@ -2,7 +2,7 @@ import {
   AttachFile as AttachFileIcon,
   Send as SendIcon,
 } from "@mui/icons-material";
-import { IconButton, Skeleton, Stack } from "@mui/material";
+import { IconButton, Skeleton, Stack, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import AppLayout from "../components/layout/AppLayout.jsx";
 
@@ -108,8 +108,8 @@ const Chat = ({ chatId, user }) => {
   }, [messages]);
 
   useEffect(() => {
-    if (!chatDetails?.data?.chat) return navigate("/");
-  }, [chatDetails.data]);
+    if (chatDetails.isError) return navigate("/");
+  }, [chatDetails.isError]);
 
   const newMessagesListener = useCallback(
     (data) => {
@@ -181,9 +181,15 @@ const Chat = ({ chatId, user }) => {
           overflowY: "auto",
         }}
       >
-        {allMessages.map((i, key) => {
-          return <MessageComponent key={key} message={i} user={user} />;
-        })}
+        {allMessages.length === 0 ? (
+          <Typography variant="h6" color="text.secondary" textAlign="center">
+            No messages yet
+          </Typography>
+        ) : (
+          allMessages.map((i, key) => {
+            return <MessageComponent key={key} message={i} user={user} />;
+          })
+        )}
 
         {userTyping && <TypingLoader />}
         <div ref={bottomRef} />
