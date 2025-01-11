@@ -335,9 +335,11 @@ const deleteChat = TryCatch(async (req, res, next) => {
 
   const public_ids = [];
 
-  messagesWithAttachments.forEach(({ attachment }) =>
-    attachment.forEach(({ public_id }) => public_ids.push(public_id))
-  );
+  messagesWithAttachments.forEach((attachment) => {
+    attachment.attachments.forEach(({ public_id }) =>
+      public_ids.push(public_id)
+    );
+  });
 
   await Promise.all([
     // Delete files from cloudinary
@@ -347,6 +349,7 @@ const deleteChat = TryCatch(async (req, res, next) => {
   ]);
 
   emitEvent(req, REFETCH_CHATS, members);
+
   return res.status(200).json({
     success: true,
     message: "Chat deleted successfully",

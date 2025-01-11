@@ -1,30 +1,30 @@
-import React, { Suspense, lazy, useState, memo, useEffect } from "react";
 import {
-  Grid,
-  Tooltip,
-  IconButton,
-  Box,
-  Drawer,
-  Stack,
-  Typography,
-  TextField,
-  Button,
-  Backdrop,
-} from "@mui/material";
-import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Done as DoneIcon,
+  Edit as EditIcon,
   KeyboardBackspace as KeyboardBackspaceIcon,
   Menu as MenuIcon,
-  Edit as EditIcon,
-  Done as DoneIcon,
-  Delete as DeleteIcon,
-  Add as AddIcon,
 } from "@mui/icons-material";
-import { matteBlack } from "../constants/colors.js";
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Drawer,
+  Grid,
+  IconButton,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import React, { Suspense, lazy, memo, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Link } from "../components/styles/StyledComponents.jsx";
 import AvatarCard from "../components/shared/AvatarCard.jsx";
-import { sampleChats, sampleUsers } from "../constants/sampleData.js";
 import UserItem from "../components/shared/UserItem.jsx";
+import { Link } from "../components/styles/StyledComponents.jsx";
+import { matteBlack } from "../constants/colors.js";
 
 const ConfirmDeleteDialog = lazy(() =>
   import("../components/dialogs/ConfirmDeleteDialog.jsx")
@@ -33,16 +33,16 @@ const AddMemberDialog = lazy(() =>
   import("../components/dialogs/AddMemberDialog.jsx")
 );
 
+import { useDispatch, useSelector } from "react-redux";
+import { LayoutLoader } from "../components/layout/Loaders.jsx";
+import { useAsyncMutation, useErrors } from "../hooks/hooks.jsx";
 import {
-  useAddGroupMembersMutation,
   useChatDetailsQuery,
+  useDeleteChatMutation,
   useMyGroupsQuery,
   useRemoveGroupMembersMutation,
   useRenameGroupMutation,
 } from "../redux/api/api.js";
-import { useAsyncMutation, useErrors } from "../hooks/hooks.jsx";
-import { LayoutLoader } from "../components/layout/Loaders.jsx";
-import { useDispatch, useSelector } from "react-redux";
 import { setIsAddMember } from "../redux/reducers/misc.js";
 
 const Groups = () => {
@@ -66,6 +66,9 @@ const Groups = () => {
   );
   const [removeMember, isLoadingRemoveMember] = useAsyncMutation(
     useRemoveGroupMembersMutation
+  );
+  const [deleteGroup, isLoadingDeleteGroup] = useAsyncMutation(
+    useDeleteChatMutation
   );
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -122,6 +125,7 @@ const Groups = () => {
   const closeConfirmDeleteHandler = () => {
     setConfirmDeleteDialog(false);
   };
+
   const openAddMemberHandler = () => {
     dispatch(setIsAddMember(true));
   };
@@ -134,7 +138,9 @@ const Groups = () => {
   };
 
   const deleteHandler = () => {
+    deleteGroup("Deleting group...", chatId);
     closeConfirmDeleteHandler();
+    navigate("/groups");
   };
 
   useEffect(() => {
@@ -304,19 +310,23 @@ const Groups = () => {
               height="50vh"
               overflow="auto"
             >
-              {groupMembers.map((i) => (
-                <UserItem
-                  key={i._id}
-                  user={i}
-                  isAdded
-                  styling={{
-                    boxShadow: "0 0 0.5rem rgba(0,0,0,0.2)",
-                    padding: "1rem 2rem",
-                    borderRadius: "1rem",
-                  }}
-                  handler={removeMemberHandler}
-                />
-              ))}
+              {isLoadingRemoveMember ? (
+                <CircularProgress />
+              ) : (
+                groupMembers.map((i) => (
+                  <UserItem
+                    key={i._id}
+                    user={i}
+                    isAdded
+                    styling={{
+                      boxShadow: "0 0 0.5rem rgba(0,0,0,0.2)",
+                      padding: "1rem 2rem",
+                      borderRadius: "1rem",
+                    }}
+                    handler={removeMemberHandler}
+                  />
+                ))
+              )}
             </Stack>
 
             {ButtonGroup}
