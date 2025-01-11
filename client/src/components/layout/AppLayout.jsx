@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useMyChatsQuery } from "../../redux/api/api.js";
 import Title from "../shared/Title.jsx";
 import ChatList from "../specific/ChatList.jsx";
@@ -19,8 +19,13 @@ import {
   incrementNotification,
   setNewMessagesAlert,
 } from "../../redux/reducers/chat.js";
-import { setIsMobile } from "../../redux/reducers/misc.js";
+import {
+  setIsDeleteMenu,
+  setIsMobile,
+  setSelectedDeleteChat,
+} from "../../redux/reducers/misc.js";
 import { getSocket } from "../../socket.jsx";
+import DeleteChatMenu from "../dialogs/DeleteChatMenu.jsx";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -28,6 +33,9 @@ const AppLayout = () => (WrappedComponent) => {
     const navigate = useNavigate();
     const chatId = params.chatId;
     const dispatch = useDispatch();
+
+    const deleteMenuAnchor = useRef(null);
+
     const { newMessagesAlert } = useSelector((state) => state.chat);
 
     const socket = getSocket();
@@ -43,9 +51,10 @@ const AppLayout = () => (WrappedComponent) => {
       getorSaveFromStorage({ key: NEW_MESSAGE_ALERT, value: newMessagesAlert });
     }, [newMessagesAlert]);
 
-    const handleDeleteChat = (e, _id, groupChat) => {
-      e.preventDefault();
-      console.log("Delete chst: ", _id, groupChat);
+    const handleDeleteChat = (e, chatId, groupChat) => {
+      dispatch(setIsDeleteMenu(true));
+      dispatch(setSelectedDeleteChat({ chatId, groupChat }));
+      deleteMenuAnchor.current = e.currentTarget;
     };
 
     const handleMobileClose = () => dispatch(setIsMobile(false));
@@ -79,6 +88,11 @@ const AppLayout = () => (WrappedComponent) => {
       <>
         <Title />
         <Header />
+
+        <DeleteChatMenu
+          dispatch={dispatch}
+          deleteMenuAnchor={deleteMenuAnchor}
+        />
 
         {isLoading ? (
           <Skeleton />

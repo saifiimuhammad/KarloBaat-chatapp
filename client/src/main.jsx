@@ -12,7 +12,7 @@ createRoot(document.getElementById("root")).render(
     <Provider store={store}>
       <HelmetProvider>
         <CssBaseline />
-        <div>
+        <div onContextMenu={(e) => e.preventDefault()}>
           <App />
         </div>
       </HelmetProvider>

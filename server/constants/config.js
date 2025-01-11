@@ -6,6 +6,7 @@ const corsOptions = {
     "http://192.168.0.103:5173",
     process.env.CLIENT_URL,
   ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 };
 
