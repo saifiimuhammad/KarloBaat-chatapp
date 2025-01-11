@@ -81,7 +81,7 @@ const NotificationItem = memo(({ sender, _id, handler }) => {
   return (
     <ListItem>
       <Stack direction="row" alignItems="center" spacing="1rem" width="100%">
-        <Avatar src={transformImage(sender?.avatar)} />
+        <Avatar src={transformImage(avatar)} />
         <Typography
           variant="body1"
           sx={{

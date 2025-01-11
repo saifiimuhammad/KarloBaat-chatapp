@@ -34,7 +34,12 @@ app.post("/new", newGroupValidator(), validateHandler, newGroupChat);
 app.get("/my", getMyChats);
 app.get("/my/groups", getMyGroups);
 app.put("/addmembers", addMemberValidator(), validateHandler, addMembers);
-app.put("/remove", removeMemberValidator(), validateHandler, removeMember);
+app.put(
+  "/removemember",
+  removeMemberValidator(),
+  validateHandler,
+  removeMember
+);
 app.delete("/leave/:id", chatIdValidator(), validateHandler, leaveGroup);
 app.post(
   "/message",

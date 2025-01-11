@@ -7,20 +7,25 @@ import Header from "./Header.jsx";
 
 import { Drawer, Grid, Skeleton } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { NEW_MESSAGE_ALERT, NEW_REQUEST } from "../../constants/events.js";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  NEW_MESSAGE_ALERT,
+  NEW_REQUEST,
+  REFETCH_CHATS,
+} from "../../constants/events.js";
 import { useErrors, useSocketEvents } from "../../hooks/hooks.jsx";
+import { getorSaveFromStorage } from "../../lib/features.js";
 import {
   incrementNotification,
   setNewMessagesAlert,
 } from "../../redux/reducers/chat.js";
 import { setIsMobile } from "../../redux/reducers/misc.js";
 import { getSocket } from "../../socket.jsx";
-import { getorSaveFromStorage } from "../../lib/features.js";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
     const params = useParams();
+    const navigate = useNavigate();
     const chatId = params.chatId;
     const dispatch = useDispatch();
     const { newMessagesAlert } = useSelector((state) => state.chat);
@@ -30,8 +35,7 @@ const AppLayout = () => (WrappedComponent) => {
     const { isMobile } = useSelector((state) => state.misc);
     const { user } = useSelector((state) => state.auth);
 
-    const { isLoading, isError, isSuccess, error, data, refetch } =
-      useMyChatsQuery("");
+    const { isLoading, isError, error, data, refetch } = useMyChatsQuery("");
 
     useErrors([{ isError, error }]);
 
@@ -46,20 +50,27 @@ const AppLayout = () => (WrappedComponent) => {
 
     const handleMobileClose = () => dispatch(setIsMobile(false));
 
-    const newMessageAlertHandler = useCallback(
+    const newMessageAlertListener = useCallback(
       (data) => {
         if (data.chatId === chatId) return;
         dispatch(setNewMessagesAlert(data));
       },
       [chatId]
     );
-    const newRequestHandler = useCallback(() => {
+
+    const newRequestListener = useCallback(() => {
       dispatch(incrementNotification());
     }, []);
 
+    const refetchListener = useCallback(() => {
+      refetch();
+      navigate("/");
+    }, [refetch, navigate]);
+
     const eventHandlers = {
-      [NEW_MESSAGE_ALERT]: newMessageAlertHandler,
-      [NEW_REQUEST]: newRequestHandler,
+      [NEW_MESSAGE_ALERT]: newMessageAlertListener,
+      [NEW_REQUEST]: newRequestListener,
+      [REFETCH_CHATS]: refetchListener,
     };
 
     useSocketEvents(socket, eventHandlers);

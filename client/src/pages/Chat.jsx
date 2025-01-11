@@ -11,17 +11,24 @@ import { grayColor, orange } from "../constants/colors.js";
 
 import { useInfiniteScrollTop } from "6pp";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import FileMenu from "../components/dialogs/FileMenu.jsx";
+import { TypingLoader } from "../components/layout/Loaders.jsx";
 import MessageComponent from "../components/shared/MessageComponent.jsx";
-import { NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events.js";
+import {
+  ALERT,
+  NEW_MESSAGE,
+  START_TYPING,
+  STOP_TYPING,
+} from "../constants/events.js";
 import { useErrors, useSocketEvents } from "../hooks/hooks.jsx";
 import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api.js";
+import { removeNewMessagesAlert } from "../redux/reducers/chat.js";
 import { setIsFileMenu } from "../redux/reducers/misc.js";
 import { getSocket } from "../socket.jsx";
-import { removeNewMessagesAlert } from "../redux/reducers/chat.js";
-import { TypingLoader } from "../components/layout/Loaders.jsx";
 
 const Chat = ({ chatId, user }) => {
+  const navigate = useNavigate();
   const containerRef = useRef(null);
   const socket = getSocket();
   const dispatch = useDispatch();
@@ -100,6 +107,10 @@ const Chat = ({ chatId, user }) => {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (!chatDetails?.data?.chat) return navigate("/");
+  }, [chatDetails.data]);
+
   const newMessagesListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
@@ -111,7 +122,6 @@ const Chat = ({ chatId, user }) => {
   const startTypingListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
-      console.log("start typing", data);
       setUserTyping(true);
     },
     [chatId]
@@ -120,25 +130,27 @@ const Chat = ({ chatId, user }) => {
   const stopTypingListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
-      console.log("stop typing", data);
       setUserTyping(false);
     },
     [chatId]
   );
 
-  const alertListener = useCallback((content) => {
-    const messageForAlert = {
-      content,
-      sender: {
-        _id: "0muh3amm2ad4sa3if1ar9ai1n600717",
-        name: "Admin",
-      },
-      chat: chatId,
-      createdAt: new Date().toISOString(),
-    };
+  const alertListener = useCallback(
+    (content) => {
+      const messageForAlert = {
+        content,
+        sender: {
+          _id: "0muh3amm2ad4sa3if1ar9ai1n600717",
+          name: "Admin",
+        },
+        chat: chatId,
+        createdAt: new Date().toISOString(),
+      };
 
-    setMessages((prev) => [...prev, messageForAlert]);
-  }, []);
+      setMessages((prev) => [...prev, messageForAlert]);
+    },
+    [chatId]
+  );
 
   const eventHandlers = {
     [ALERT]: alertListener,
