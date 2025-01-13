@@ -317,16 +317,17 @@ const deleteChat = TryCatch(async (req, res, next) => {
 
   const members = chat.members;
 
-  if (!chat.groupChat && chat.creator.toString() !== req.user.toString())
-    return next(
-      new ErrorHandler("You are not allowed to delete this chat", 403)
-    );
+  if (chat.groupChat) {
+    if (!chat.groupChat && chat?.creator.toString() !== req.user.toString())
+      return next(
+        new ErrorHandler("You are not allowed to delete this chat", 403)
+      );
 
-  if (!chat.groupChat && !chat.members.includes(req.user.toString()))
-    return next(
-      new ErrorHandler("You are not allowed to delete this chat", 403)
-    );
-
+    if (!chat.groupChat && !chat.members.includes(req.user.toString()))
+      return next(
+        new ErrorHandler("You are not allowed to delete this chat", 403)
+      );
+  }
   // here we have to delete all the messagges as well attachments or files from cloudinary
 
   const messagesWithAttachments = await Message.find({
