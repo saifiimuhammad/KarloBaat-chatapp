@@ -28,6 +28,7 @@ const sendToken = (res, user, code, message) => {
 
   return res.status(code).cookie("karlobaat-token", token, cookieOptions).json({
     success: true,
+    user,
     message,
   });
 };
