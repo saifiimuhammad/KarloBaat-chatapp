@@ -160,8 +160,6 @@ const getDashboardStats = TryCatch(async (req, res, next) => {
     },
   }).select("createdAt");
 
-  console.log(last7DaysMessages.length);
-
   const messages = new Array(7).fill(0);
   const daysInMiliseconds = 1000 * 60 * 60 * 24;
 
