@@ -1,14 +1,11 @@
-
-
-
-import React, { useState, useEffect } from 'react';
-import AdminLayout from '../../components/layout/AdminLayout.jsx';
-import Table from '../../components/shared/Table.jsx';
-import { Avatar } from '@mui/material';
-import { dashboardData } from '../../constants/sampleData.js';
-import { transformImage } from '../../lib/features.js';
-
-
+import { useFetchData } from "6pp";
+import { Avatar, Skeleton } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import AdminLayout from "../../components/layout/AdminLayout.jsx";
+import Table from "../../components/shared/Table.jsx";
+import { server } from "../../constants/config.js";
+import { useErrors } from "../../hooks/hooks.jsx";
+import { transformImage } from "../../lib/features.js";
 
 const columns = [
   {
@@ -22,7 +19,9 @@ const columns = [
     headerName: "Avatar",
     headerClassName: "table-header",
     width: 150,
-    renderCell: (params) => <Avatar alt={params.row.name} src={params.row.avatar} />,
+    renderCell: (params) => (
+      <Avatar alt={params.row.name} src={params.row.avatar} />
+    ),
   },
   {
     field: "name",
@@ -45,24 +44,41 @@ const columns = [
 ];
 
 const UserManagement = () => {
-
   const [rows, setRows] = useState([]);
 
-  useEffect(() => {
-    setRows(
-      dashboardData.users.map((i) => ({
-        ...i,
-        id: i._id,
-        avatar: transformImage(i.avatar, 50)
-      }))
-    )
-  }, [])
+  const { loading, data, error } = useFetchData(
+    `${server}/api/v1/admin/users`,
+    "dashboard-users"
+  );
 
-return (
-  <AdminLayout>
-  <Table heading="All Users" columns={columns} rows={rows}/>
-  </AdminLayout>
-);
-}
+  useErrors([
+    {
+      isError: error,
+      error,
+    },
+  ]);
+
+  useEffect(() => {
+    if (data) {
+      setRows(
+        data?.users.map((i) => ({
+          ...i,
+          id: i._id,
+          avatar: transformImage(i.avatar, 50),
+        }))
+      );
+    }
+  }, [data]);
+
+  return (
+    <AdminLayout>
+      {loading ? (
+        <Skeleton height={"100vh"} />
+      ) : (
+        <Table heading="All Users" columns={columns} rows={rows} />
+      )}
+    </AdminLayout>
+  );
+};
 
 export default UserManagement;

@@ -17,6 +17,8 @@ import { TypingLoader } from "../components/layout/Loaders.jsx";
 import MessageComponent from "../components/shared/MessageComponent.jsx";
 import {
   ALERT,
+  CHAT_JOINED,
+  CHAT_LEAVED,
   NEW_MESSAGE,
   START_TYPING,
   STOP_TYPING,
@@ -93,12 +95,14 @@ const Chat = ({ chatId, user }) => {
   };
 
   useEffect(() => {
+    socket.emit(CHAT_JOINED, { userId: user._id, members });
     dispatch(removeNewMessagesAlert(chatId));
     return () => {
       setMessages([]);
       setMessage("");
       setOldMessages([]);
       setPage(1);
+      socket.emit(CHAT_LEAVED, { userId: user._id, members });
     };
   }, [chatId]);
 

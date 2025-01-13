@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import AdminLayout from '../../components/layout/AdminLayout.jsx';
-import Table from '../../components/shared/Table.jsx';
-import { Avatar, Stack } from '@mui/material';
-import { dashboardData } from '../../constants/sampleData.js';
-import { transformImage } from '../../lib/features.js';
-import AvatarCard from '../../components/shared/AvatarCard.jsx';
-
-
+import { Avatar, Skeleton, Stack } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import AdminLayout from "../../components/layout/AdminLayout.jsx";
+import AvatarCard from "../../components/shared/AvatarCard.jsx";
+import Table from "../../components/shared/Table.jsx";
+import { useFetchData } from "6pp";
+import { server } from "../../constants/config.js";
+import { useErrors } from "../../hooks/hooks.jsx";
+import { transformImage } from "../../lib/features.js";
 
 const columns = [
   {
@@ -29,6 +29,13 @@ const columns = [
     width: 300,
   },
   {
+    field: "groupChat",
+    headerName: "Group Chat",
+    headerClassName: "table-header",
+    width: 100,
+    renderCell: (params) => (params.row.groupChat ? "Yes" : "No"),
+  },
+  {
     field: "totalMembers",
     headerName: "Total Members",
     headerClassName: "table-header",
@@ -39,50 +46,69 @@ const columns = [
     headerName: "Members",
     headerClassName: "table-header",
     width: 400,
-    renderCell: (params) => <AvatarCard max={100} avatar={params.row.members}/>
+    renderCell: (params) => (
+      <AvatarCard max={100} avatar={params.row.members} />
+    ),
   },
-    {
+  {
     field: "totalMessages",
     headerName: "Total Messages",
     headerClassName: "table-header",
     width: 150,
   },
-    {
+  {
     field: "creator",
     headerName: "Created by",
     headerClassName: "table-header",
     width: 250,
-      renderCell: (params) => (
-        <Stack direction="row" alignItems="center" spacing="1rem">
-        <Avatar alt={params.row.creator.name} src={params.row.creator.avatar}/>
+    renderCell: (params) => (
+      <Stack direction="row" alignItems="center" spacing="1rem">
+        <Avatar alt={params.row.creator.name} src={params.row.creator.avatar} />
         <span>{params.row.creator.name}</span>
-        </Stack>
-      ),
+      </Stack>
+    ),
   },
 ];
-
 
 const ChatManagement = () => {
   const [rows, setRows] = useState([]);
 
+  const { loading, data, error } = useFetchData(
+    `${server}/api/v1/admin/chats`,
+    "dashboard-chats"
+  );
+
+  useErrors([
+    {
+      isError: error,
+      error,
+    },
+  ]);
+
   useEffect(() => {
-    setRows(
-      dashboardData.chats.map((i) => ({
-        ...i,
-        id: i._id,
-        avatar: i.avatar.map(i => transformImage(i, 50)),
-        members: i.members.map(i => transformImage(i.avatar, 50)),
-        creator: {
-          name: i.creator.name,
-          avatar: transformImage(i.creator.avatar, 50)
-        }
-      }))
-    )
-  }, []);
+    if (data) {
+      setRows(
+        data?.chats.map((i) => ({
+          ...i,
+          id: i._id,
+          avatar: i.avatar.map((i) => transformImage(i, 50)),
+          members: i.members.map((i) => transformImage(i.avatar, 50)),
+          creator: {
+            name: i.creator.name,
+            avatar: transformImage(i.creator.avatar, 50),
+          },
+        }))
+      );
+    }
+  }, [data]);
 
   return (
     <AdminLayout>
-      <Table heading="All Chats" columns={columns} rows={rows} />
+      {loading ? (
+        <Skeleton height={"100vh"} />
+      ) : (
+        <Table heading="All Chats" columns={columns} rows={rows} />
+      )}
     </AdminLayout>
   );
 };
