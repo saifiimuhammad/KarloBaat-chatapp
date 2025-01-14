@@ -55,7 +55,7 @@ To clone the repository, use the following steps:
 1. **Clone the repository:**
 
 ```bash
-git clone https://github.com/saifiimuhammad/karloBaat.git
+git clone https://github.com/saifiimuhammad/KarloBaat-chatapp.git
 ```
 
 2. **Navigate to the project directory:**
@@ -108,7 +108,7 @@ We welcome contributions to **KarloBaat**! If you want to contribute, follow the
 2. **Clone your fork**:
 
 ```bash
-git clone https://github.com/saifiimuhammad/karloBaat.git
+git clone https://github.com/saifiimuhammad/KarloBaat-chatapp.git
 ```
 
 3. **Create a new branch**:
