@@ -1,0 +1,400 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Default Classes */
+
+html {
+  user-select: none;
+  scroll-behavior: smooth;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+li {
+  list-style: none;
+}
+
+img {
+  width: 80px;
+  height: auto;
+}
+
+/* Reusable Classes */
+
+.container {
+  padding-inline: 4rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  background-color: black;
+  color: white;
+  border-radius: 50px;
+  border: 1px solid black;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  color: rgb(187, 187, 187);
+  transition: all 0.3s ease;
+}
+
+.btn-2 {
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  color: black;
+  border-radius: 50px;
+  border: 1px solid black;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-2:hover {
+  color: rgb(85, 85, 85);
+  transition: all 0.3s ease;
+}
+
+/* Navbar Classes */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: transparent;
+  width: 100%;
+  z-index: 999;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 80px;
+  background-color: white;
+  position: relative;
+}
+
+.nav-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 3rem;
+  font-size: 1.05rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  height: 100%;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 0.5rem;
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 1rem;
+}
+
+/* .hover-effect:before {
+  content: "";
+  position: absolute;
+  bottom: -2%;
+  background-color: black;
+  height: 1px;
+  width: 0;
+  border-radius: 50px;
+  transition: width 0.3s ease;
+}
+
+.hover-effect:hover:before {
+  width: 100%;
+} */
+
+/* Hero Section Classes */
+
+.home-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.home-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.home-title {
+  font-size: 4rem;
+}
+
+.home-desc {
+  font-size: 1.25rem;
+  text-align: center;
+  font-weight: 300;
+  width: 70%;
+}
+
+.btn-container {
+  padding-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 1rem;
+}
+
+/* Feature Section Container */
+
+.feature-section {
+  width: 100%;
+}
+
+.feature-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-container {
+  display: grid;
+  place-items: center;
+}
+
+.feature-img {
+  width: 37.5rem;
+}
+
+.features-box {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 6rem;
+  position: relative;
+}
+
+.box-2 {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.feature {
+  font-size: 1.2rem;
+  font-weight: 500;
+  position: absolute;
+  width: max-content;
+}
+
+/* Reviews Section Container */
+
+.review-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.review-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.review-title {
+  font-size: 3rem;
+}
+
+.review-desc {
+  font-size: 1.15rem;
+  font-weight: 300;
+}
+
+.review-cards-container {
+  margin-top: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Review Item Classes */
+
+.review-card {
+  width: 300px;
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border: 1px solid rgb(196, 196, 196);
+  border-radius: 20px;
+  padding-inline: 1rem;
+}
+
+.user-img {
+  border-radius: 50px;
+  width: 100px;
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-top: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+}
+
+.card-desc::before {
+  content: '"';
+}
+
+.card-desc {
+  text-align: center;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.card-desc::after {
+  content: '"';
+}
+
+.rating-container {
+  margin-top: 1rem;
+}
+
+/* Footer Classes */
+
+.footer-container {
+  background-color: black;
+  padding-block: 4rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-title {
+  margin-bottom: 3rem;
+}
+
+.footer-nav-menu {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  row-gap: 1rem;
+  color: white;
+}
+
+.footer-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 0.5rem;
+}
+
+.footer-link {
+  color: white;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: rgb(211, 211, 211);
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+}
+
+.footer-copyright {
+  height: 240px;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+@media screen and (max-width: 1024px) {
+  .container {
+    padding-inline: 4rem;
+  }
+
+  .home-title {
+    font-size: 3.5rem;
+  }
+
+  .feature-img {
+    width: 28.5rem;
+  }
+
+  .feature {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .home-title {
+    font-size: 2.5rem;
+  }
+
+  .feature-img {
+    width: 21.5rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .nav-menu {
+    position: absolute;
+    top: -500%;
+    left: 0;
+    flex-direction: column;
+    row-gap: 2rem;
+    background-color: white;
+    width: 100%;
+    height: 300px;
+    transition: all 0.3s ease-in;
+  }
+}
+
+/* Show Nav Classes */
+
+.show-nav {
+  top: 0;
+  transition: all 0.3s ease-out;
+}
