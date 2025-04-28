@@ -179,11 +179,12 @@ const Chat = ({ chatId, user }) => {
         boxSizing="border-box"
         padding="1rem"
         spacing="1rem"
-        bgcolor={grayColor}
+        bgcolor={"#fff"}
         height="90%"
         sx={{
           overflowX: "hidden",
           overflowY: "auto",
+          marginInline: "1rem",
         }}
       >
         {allMessages.length === 0 ? (
@@ -228,16 +229,21 @@ const Chat = ({ chatId, user }) => {
             placeholder="Type message here..."
             value={message}
             onChange={messageOnChange}
+            sx={{
+              padding: "1.5rem",
+              paddingLeft: "3rem",
+            }}
           />
 
           <IconButton
             type="submit"
             sx={{
-              bgcolor: orange,
+              bgcolor: "#1976d2",
+              color: "white",
               marginLeft: "1rem",
               padding: "0.5rem",
               "&:hover": {
-                bgcolor: "error.dark",
+                bgcolor: "#1988dd",
               },
               rotate: "-30deg",
             }}

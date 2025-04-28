@@ -9,12 +9,14 @@ const createUser = async (numOfUsers) => {
       const tempUsers = User.create({
         name: faker.person.fullName(),
         username: faker.internet.username(),
+        email: faker.internet.email(),
         bio: faker.lorem.sentence(),
         password: "password",
         avatar: {
           url: faker.image.avatar(),
           public_id: faker.system.fileName(),
         },
+        role: faker.helpers.arrayElement(["user", "admin"]),
       });
       usersPromise.push(tempUsers);
     }
@@ -27,6 +29,5 @@ const createUser = async (numOfUsers) => {
     process.exit(1);
   }
 };
-
 
 export { createUser };

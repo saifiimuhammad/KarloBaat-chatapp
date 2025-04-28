@@ -263,7 +263,13 @@ const Groups = () => {
   return myGroups.isLoading ? (
     <LayoutLoader />
   ) : (
-    <Grid container height="100vh">
+    <Grid
+      container
+      height="100vh"
+      sx={{
+        padding: "1rem",
+      }}
+    >
       <Grid
         item
         sm={4}
@@ -289,7 +295,7 @@ const Groups = () => {
         }}
       >
         {IconBtns}
-        {groupName && (
+        {groupName ? (
           <>
             {GroupName}
 
@@ -331,6 +337,15 @@ const Groups = () => {
 
             {ButtonGroup}
           </>
+        ) : (
+          <div
+            style={{
+              paddingTop: "1.85rem",
+              fontSize: "1.25rem",
+            }}
+          >
+            Select a group first!
+          </div>
         )}
       </Grid>
 
@@ -376,6 +391,8 @@ const GroupsList = ({ w = "100%", myGroups = [], chatId }) => (
     sx={{
       height: "100%",
       overflow: "auto",
+      borderRadius: "15px",
+      backgroundColor: "#f1f1f1",
     }}
   >
     {myGroups.length > 0 ? (

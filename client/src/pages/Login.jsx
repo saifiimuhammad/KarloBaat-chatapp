@@ -18,7 +18,12 @@ import { userExists } from "../redux/reducers/auth.js";
 
 import { CameraAlt as CameraAltIcon } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "../components/styles/StyledComponents.jsx";
-import { bgGradient, primary, primaryHover } from "../constants/colors.js";
+import {
+  bgGradient,
+  matteBlack,
+  primary,
+  primaryHover,
+} from "../constants/colors.js";
 import { usernameValidator } from "../utils/validators.js";
 
 const Login = () => {
@@ -109,7 +114,7 @@ const Login = () => {
   return (
     <div
       style={{
-        backgroundImage: bgGradient,
+        backgroundColor: "white",
       }}
     >
       <Container

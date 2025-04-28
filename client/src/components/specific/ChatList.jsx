@@ -16,7 +16,16 @@ const ChatList = ({
   handleDeleteChat,
 }) => {
   return (
-    <Stack width={w} direction="column" overflow="auto" height="100%">
+    <Stack
+      width={w}
+      direction="column"
+      overflow="auto"
+      height="100%"
+      sx={{
+        borderRadius: "15px",
+        backgroundColor: "#f1f1f1",
+      }}
+    >
       {chats.length === 0 ? (
         <Stack
           width="100%"

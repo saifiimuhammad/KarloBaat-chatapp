@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: white;
+}
+
+img {
+  width: 40px;
+  height: auto;
+}
+
+.line-divider {
+  width: 100%;
+  height: 0.5px;
+  background-color: #3b3b3b;
+  border: none;
+}
+
+.main-container {
+  margin: 1rem;
+  background: transparent;
+}
+
+.navbar {
+  margin-bottom: 0.5rem;
+}
+
+.nav-icon:hover {
+  color: #1976d2;
+}
+
+@media screen and (max-width: 500px) {
+  .main-container {
+    margin: 0rem;
+  }
+
+  .nav-img {
+    display: none;
+  }
+}

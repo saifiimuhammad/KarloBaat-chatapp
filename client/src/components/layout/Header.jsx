@@ -31,6 +31,7 @@ import {
   setIsSearch,
 } from "../../redux/reducers/misc.js";
 import { resetNotificationCount } from "../../redux/reducers/chat.js";
+import appLogo from "../../../public/assets/images/karlobaat.png";
 
 const SearchDialog = lazy(() => import("../specific/Search.jsx"));
 const NotificationsDialog = lazy(() => import("../specific/Notifications.jsx"));
@@ -39,6 +40,8 @@ const NewGroupDialog = lazy(() => import("../specific/NewGroup.jsx"));
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const isMobile = window.innerWidth <= 500;
 
   const { isSearch, isNotification, isNewGroup } = useSelector(
     (state) => state.misc
@@ -73,7 +76,7 @@ const Header = () => {
   };
 
   return (
-    <>
+    <div className="navbar">
       <Box
         sx={{
           flexGrow: 1,
@@ -84,17 +87,11 @@ const Header = () => {
           position="static"
           sx={{
             bgcolor: matteBlack,
+            borderRadius: isMobile ? "0px" : "15px",
           }}
         >
           <Toolbar>
-            <Typography
-              variant="h6"
-              sx={{
-                display: { xs: "none", sm: "block" },
-              }}
-            >
-              KarloBaat
-            </Typography>
+            <img src={appLogo} alt="Karlobaat logo" className="nav-img" />
 
             <Box
               sx={{
@@ -112,31 +109,36 @@ const Header = () => {
               }}
             />
 
-            <Box>
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
+              columnGap={isMobile ? "0rem" : "2rem"}
+            >
               <IconBtn
                 title="Search"
-                icon={<SearchIcon />}
+                icon={<SearchIcon className="nav-icon icon" />}
                 onClick={openSearch}
               />
               <IconBtn
                 title="New Group"
-                icon={<AddIcon />}
+                icon={<AddIcon className="nav-icon icon" />}
                 onClick={openNewGroup}
               />
               <IconBtn
                 title="Manage Groups"
-                icon={<GroupIcon />}
+                icon={<GroupIcon className="nav-icon icon" />}
                 onClick={navigateToGroup}
               />
               <IconBtn
                 title="Notifications"
-                icon={<NotificationsIcon />}
+                icon={<NotificationsIcon className="nav-icon icon" />}
                 onClick={openNotification}
                 value={notificationCount}
               />
               <IconBtn
                 title="Logout"
-                icon={<LogoutIcon />}
+                icon={<LogoutIcon className="nav-icon icon" />}
                 onClick={logoutHandler}
               />
             </Box>
@@ -160,7 +162,7 @@ const Header = () => {
           <NewGroupDialog />
         </Suspense>
       )}
-    </>
+    </div>
   );
 };
 

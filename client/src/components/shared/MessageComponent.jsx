@@ -19,15 +19,15 @@ const MessageComponent = ({ message, user }) => {
       whileInView={{ opacity: 1, x: 0 }}
       style={{
         alignSelf: sameSender ? "flex-end" : "flex-start",
-        backgroundColor: "white",
-        color: "black",
+        backgroundColor: sameSender ? "#1976d2" : "#f7f7f7",
+        color: sameSender ? "white" : "black",
         borderRadius: "5px",
-        padding: "0.5rem",
+        padding: ".5rem 1rem",
         width: "fit-content",
       }}
     >
       {!sameSender && (
-        <Typography color={lightBlue} fontWeight="600" variant="caption">
+        <Typography color={"#1976d2"} fontWeight="600" variant="caption">
           {sender.name}
         </Typography>
       )}
@@ -56,7 +56,12 @@ const MessageComponent = ({ message, user }) => {
           );
         })}
 
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: sameSender ? "#e4e4e4" : "#323232",
+        }}
+      >
         {timeAgo}
       </Typography>
     </motion.div>

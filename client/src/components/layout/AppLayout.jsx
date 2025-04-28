@@ -27,6 +27,7 @@ import {
 import { getSocket } from "../../socket.jsx";
 import DeleteChatMenu from "../dialogs/DeleteChatMenu.jsx";
 import { ONLINE_USERS } from "../../../../server/constants/events.js";
+import { matteBlack } from "../../constants/colors.js";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -93,7 +94,7 @@ const AppLayout = () => (WrappedComponent) => {
     useSocketEvents(socket, eventHandlers);
 
     return (
-      <>
+      <div className="main-container">
         <Title />
         <Header />
 
@@ -117,7 +118,7 @@ const AppLayout = () => (WrappedComponent) => {
           </Drawer>
         )}
 
-        <Grid container height="calc(100vh - 4rem)">
+        <Grid container height={"90vh"}>
           <Grid
             item
             sm={4}
@@ -150,13 +151,14 @@ const AppLayout = () => (WrappedComponent) => {
             sx={{
               display: { xs: "none", md: "block" },
               padding: "2rem",
-              bgcolor: "rgba(0,0,0,0.85)",
+              bgcolor: matteBlack,
+              borderRadius: "15px",
             }}
           >
             <Profile user={user} />
           </Grid>
         </Grid>
-      </>
+      </div>
     );
   };
 };

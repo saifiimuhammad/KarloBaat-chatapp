@@ -8,7 +8,7 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { sampleUsers } from "../../constants/sampleData.js";
 import { useAsyncMutation } from "../../hooks/hooks.jsx";
@@ -33,21 +33,31 @@ const Search = () => {
 
   const [users, setUsers] = useState(sampleUsers);
 
-  const addFriendHandler = async (id) => {
-    await sendFriendRequest("Sending friend request...", { userId: id });
-  };
+  const addFriendHandler = useCallback(
+    async (id) => {
+      await sendFriendRequest("Sending friend request...", { userId: id });
+    },
+    [sendFriendRequest]
+  );
 
   const handleSearchClose = () => dispatch(setIsSearch(false));
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {}, 1000);
-    searchUser(search.value)
-      .then(({ data }) => setUsers(data.users))
-      .catch((err) => console.log(err));
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [search.value]);
+    const timeoutId = setTimeout(() => {
+      if (search.value.trim() !== "") {
+        searchUser(search.value)
+          .then(({ data }) => setUsers(data.users))
+          .catch((err) => console.log(err));
+      }
+    }, 500);
+
+    if (search.value.trim() === "") {
+      setUsers([]);
+      return;
+    }
+
+    return () => clearTimeout(timeoutId);
+  }, [search.value, searchUser]);
 
   return (
     <Dialog open={isSearch} onClose={handleSearchClose}>
@@ -69,16 +79,20 @@ const Search = () => {
         />
 
         <List>
-          {users.map((i) => {
-            return (
+          {users.length > 0 ? (
+            users.map((i) => (
               <UserItem
                 user={i}
                 key={i._id}
                 handler={addFriendHandler}
                 handlerIsLoading={isLoadingSendFriendRequest}
               />
-            );
-          })}
+            ))
+          ) : (
+            <p style={{ textAlign: "center", marginTop: "1rem" }}>
+              Search for users 🔍
+            </p>
+          )}
         </List>
       </Stack>
     </Dialog>
