@@ -10,7 +10,7 @@ import { userExists, userNotExists } from "./redux/reducers/auth.js";
 import { Toaster } from "react-hot-toast";
 import { SocketProvider } from "./socket.jsx";
 const Home = lazy(() => import("./pages/Home.jsx"));
-const Login = lazy(() => import("./pages/Login.jsx"));
+const Login = lazy(() => import("./pages/Login.tsx"));
 const Chat = lazy(() => import("./pages/Chat.jsx"));
 const Groups = lazy(() => import("./pages/Groups.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));

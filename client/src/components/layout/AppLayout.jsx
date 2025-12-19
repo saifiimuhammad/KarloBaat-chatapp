@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useMyChatsQuery } from "../../redux/api/api.js";
 import Title from "../shared/Title.jsx";
 import ChatList from "../specific/ChatList.jsx";
-import Profile from "../specific/Profile.jsx";
-import Header from "./Header.jsx";
+import Profile from "../specific/Profile.tsx";
+import Header from "./Header.tsx";
 
 import { Drawer, Grid, Skeleton } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -151,8 +151,6 @@ const AppLayout = () => (WrappedComponent) => {
             sx={{
               display: { xs: "none", md: "block" },
               padding: "2rem",
-              bgcolor: matteBlack,
-              borderRadius: "15px",
             }}
           >
             <Profile user={user} />
