@@ -12,7 +12,10 @@ createRoot(document.getElementById("root")).render(
     <Provider store={store}>
       <HelmetProvider>
         <CssBaseline />
-        <div onContextMenu={(e) => e.preventDefault()} className="font-sans">
+        <div
+          onContextMenu={(e) => e.preventDefault()}
+          className="font-sans text-text"
+        >
           <App />
         </div>
       </HelmetProvider>
