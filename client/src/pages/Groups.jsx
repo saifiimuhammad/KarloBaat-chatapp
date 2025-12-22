@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import React, { Suspense, lazy, memo, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import AvatarCard from "../components/shared/AvatarCard.jsx";
+import AvatarCard from "../components/shared/AvatarCard";
 import UserItem from "../components/shared/UserItem.jsx";
 import { Link } from "../components/styles/StyledComponents.jsx";
 import { matteBlack } from "../constants/colors.js";

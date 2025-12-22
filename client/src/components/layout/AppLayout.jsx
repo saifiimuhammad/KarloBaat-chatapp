@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useMyChatsQuery } from "../../redux/api/api.js";
 import Title from "../shared/Title.jsx";
-import ChatList from "../specific/ChatList.jsx";
+import ChatList from "../specific/ChatList.tsx";
 import Profile from "../specific/Profile.tsx";
 import Header from "./Header.tsx";
 

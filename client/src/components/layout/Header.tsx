@@ -25,11 +25,9 @@ import {
 } from "../../redux/reducers/misc.js";
 import { resetNotificationCount } from "../../redux/reducers/chat.js";
 
-import appLogo from "../../../public/assets/images/karlobaat.png";
-
-const SearchDialog = lazy(() => import("../specific/Search"));
-const NotificationsDialog = lazy(() => import("../specific/Notifications"));
-const NewGroupDialog = lazy(() => import("../specific/NewGroup"));
+const SearchDialog = lazy(() => import("../specific/Search.jsx"));
+const NotificationsDialog = lazy(() => import("../specific/Notifications.jsx"));
+const NewGroupDialog = lazy(() => import("../specific/NewGroup.jsx"));
 
 interface IconBtnProps {
   title: string;
@@ -89,9 +87,9 @@ const Header = () => {
         withCredentials: true,
       });
       dispatch(userNotExists());
-      toast.success(data.message);
+      toast.CheckmarkIcon(data.message);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Logout failed");
+      toast.ErrorIcon(err?.response?.data?.message || "Logout failed");
     }
   };
 
