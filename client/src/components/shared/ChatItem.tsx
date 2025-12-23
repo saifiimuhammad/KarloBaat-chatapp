@@ -46,15 +46,24 @@ const ChatItem: React.FC<ChatItemProps> = ({
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.08 }}
         className={`
-          relative flex items-center gap-4 rounded-xl p-4
+          relative flex items-center gap-4 rounded-xl py-3 px-3 mb-1
           transition-colors
-          ${sameSender ? "bg-accent text-text" : "hover:bg-background-light"}
+          ${
+            sameSender
+              ? "bg-accent text-text border-l-5 border-primary"
+              : "hover:bg-zinc-100/80"
+          }
         `}
       >
-        <AvatarCard avatar={avatar} />
+        <AvatarCard avatar={avatar} unreadCount={newMessageAlert?.count || 0} />
 
-        <div className="flex flex-col">
-          <h4 className="font-semibold text-text">{name}</h4>
+        <div className="flex flex-col w-full">
+          <div className="w-full flex items-center justify-between">
+            <h4 className="font-semibold text-text">{name}</h4>{" "}
+            <span className="text-text-light/60 text-xs font-medium">
+              9:31 AM
+            </span>
+          </div>
           <p className="text-xs text-text-light/70 mt-1">No recent activity</p>
 
           {newMessageAlert && newMessageAlert.count > 0 && (
@@ -65,9 +74,9 @@ const ChatItem: React.FC<ChatItemProps> = ({
           )}
         </div>
 
-        {isOnline && (
+        {/* {isOnline && (
           <span className="absolute right-4 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-green-500" />
-        )}
+        )} */}
       </motion.div>
     </Link>
   );

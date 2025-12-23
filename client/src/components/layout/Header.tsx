@@ -95,7 +95,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="h-16 px-4 bg-white flex items-center shadow-md">
+      <header className="h-16 px-4 bg-white flex items-center border-b border-accent">
         {/* Left */}
         <div className="flex items-center gap-3">
           {isMobile && (

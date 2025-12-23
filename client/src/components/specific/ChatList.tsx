@@ -64,10 +64,7 @@ const ChatList: React.FC<ChatListProps> = ({
           Messages
         </h3>
       </div>
-      <div
-        style={{ width: w }}
-        className="h-full overflow-auto rounded-2xl bg-background-light"
-      >
+      <div style={{ width: w }} className="h-full overflow-auto px-2">
         {chats.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-lg text-text-light">Add friends to chat!</p>
