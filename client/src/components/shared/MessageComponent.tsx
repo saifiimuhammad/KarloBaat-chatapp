@@ -3,6 +3,7 @@ import moment from "moment";
 import { motion } from "framer-motion";
 import { fileFormat } from "../../lib/features";
 import RenderAttachment from "./RenderAttachment";
+import { CheckCheck } from "lucide-react";
 
 /* ---------------- types ---------------- */
 
@@ -60,19 +61,19 @@ const MessageComponent: React.FC<Props> = ({ message, user }) => {
       >
         {/* text */}
         {content && (
-          <p className="text-sm leading-relaxed break-words">{content}</p>
+          <p className="text-sm leading-relaxed wrap-break-word">{content}</p>
         )}
 
         {/* attachments */}
         {attachments.length > 0 && (
-          <div className="mt-2 space-y-2">
+          <div className="flex flex-wrap gap-2">
             {attachments.map((attachment, index) => {
               const url = attachment.url;
               const file = fileFormat(url);
 
               return (
                 <a
-                  key={index}
+                  key={attachment.url + index}
                   href={url}
                   target="_blank"
                   rel="noreferrer"
@@ -88,9 +89,9 @@ const MessageComponent: React.FC<Props> = ({ message, user }) => {
       </div>
 
       {/* time */}
-      <span className="text-[11px] text-textLight mt-1">
-        {time}
-        {isMe && " ✓✓"}
+      <span className="text-[11px] text-textLight mt-1 flex items-center justify-center gap-1">
+        <p>{time}</p>
+        {isMe && <CheckCheck size={18} />}
       </span>
     </motion.div>
   );

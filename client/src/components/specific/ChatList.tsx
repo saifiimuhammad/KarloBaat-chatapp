@@ -39,7 +39,7 @@ const ChatList: React.FC<ChatListProps> = ({
   const [isActive, setIsActive] = useState(false);
 
   return (
-    <div>
+    <div className="">
       <div className="p-4">
         <div className="relative w-full">
           <div
@@ -72,7 +72,6 @@ const ChatList: React.FC<ChatListProps> = ({
         ) : (
           chats.map((data, index) => {
             const { avatar, name, _id, groupChat, members } = data;
-            console.log(data);
 
             const newMessageAlert = newMessagesAlert.find(
               (alert) => alert.chatId === _id

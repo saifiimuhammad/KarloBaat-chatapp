@@ -6,7 +6,8 @@ import React, {
   type FormEvent,
   type ChangeEvent,
 } from "react";
-import { Send, Phone, Video, Info, Smile, Plus } from "lucide-react";
+import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
+import { Send, Phone, Video, Info, Smile, CirclePlus } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -35,6 +36,14 @@ import { useInfiniteScrollTop } from "6pp";
 /* ---------------- types ---------------- */
 
 interface ChatProps {
+  chats: {
+    _id: string;
+    name: string;
+    avatar?: string;
+    groupChat?: boolean;
+    members?: string[];
+    isOnline?: boolean;
+  }[];
   chatId: string;
   user: {
     _id: string;
@@ -54,6 +63,7 @@ interface Attachment {
 interface Message {
   content?: string;
   sender: User;
+  chat: string;
   attachments?: Attachment[];
   createdAt: string;
 }
@@ -65,9 +75,14 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
   const dispatch = useDispatch();
   const socket = getSocket();
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const emojiRef = useRef<HTMLDivElement | null>(null);
+
+  const [showEmoji, setShowEmoji] = useState(false);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentChat = chats.find((chat) => chat._id === chatId);
 
@@ -125,6 +140,41 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
     dispatch(setIsFileMenu(true));
     setFileMenuAnchor(e.currentTarget);
   };
+
+  const onEmojiClick = (emojiData: EmojiClickData) => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const start = input.selectionStart ?? 0;
+    const end = input.selectionEnd ?? 0;
+
+    const newText =
+      message.slice(0, start) + emojiData.emoji + message.slice(end);
+
+    setMessage(newText);
+
+    requestAnimationFrame(() => {
+      input.focus();
+      input.setSelectionRange(
+        start + emojiData.emoji.length,
+        start + emojiData.emoji.length
+      );
+    });
+  };
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
+        setShowEmoji(false);
+      }
+    };
+
+    if (showEmoji) {
+      document.addEventListener("mousedown", handler);
+    }
+
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showEmoji]);
 
   /* ---------------- lifecycle ---------------- */
 
@@ -215,9 +265,9 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background-2">
+    <div className="flex flex-col h-full bg-background-2 border-x border-zinc-200">
       {/* ---------- HEADER ---------- */}
-      <div className="h-16 bg-bg2 border-b flex items-center justify-between px-4">
+      <div className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <img
             src={currentChat?.avatar || "/default-avatar.png"}
@@ -252,7 +302,11 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
           <p className="text-center text-textLight">No messages yet</p>
         ) : (
           allMessages.map((msg, i) => (
-            <MessageComponent key={i} message={msg as Message} user={user} />
+            <MessageComponent
+              key={i + 22}
+              message={msg as Message}
+              user={user}
+            />
           ))
         )}
 
@@ -262,30 +316,43 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
 
       {/* ---------- INPUT ---------- */}
       <form onSubmit={submitHandler} className="p-4 bg-bg2">
-        <div className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow">
+        <div className="relative flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow">
           <button
             type="button"
-            className="text-secondary"
+            className="text-primary hover:text-secondary cursor-pointer"
             onClick={handleFileOpen}
           >
-            <Plus size={20} />
+            <CirclePlus size={20} />
           </button>
 
           <input
+            ref={inputRef}
             value={message}
             onChange={messageOnChange}
             placeholder="Type a message..."
             className="flex-1 outline-none text-sm text-text"
           />
 
-          <Smile size={20} className="text-secondary" />
+          <button
+            type="button"
+            onClick={() => setShowEmoji((p) => !p)}
+            className="text-primary hover:text-secondary cursor-pointer"
+          >
+            <Smile size={20} />
+          </button>
 
           <button
             type="submit"
-            className="bg-primary text-white p-2 rounded-xl"
+            className="bg-primary hover:bg-secondary text-white p-2 rounded-xl cursor-pointer"
           >
             <Send size={18} />
           </button>
+
+          {showEmoji && (
+            <div className="absolute bottom-16 right-0 z-50">
+              <EmojiPicker onEmojiClick={onEmojiClick} />
+            </div>
+          )}
         </div>
       </form>
 

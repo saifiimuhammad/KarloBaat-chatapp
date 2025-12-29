@@ -10,7 +10,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
   return (
     <div className="w-full max-w-sm mx-auto px-4 py-6 pt-0">
       {/* Header */}
-      <h2 className="text-lg font-semibold mb-12">My Profile</h2>
+      <h2 className="text-lg font-semibold mb-4">My Profile</h2>
 
       {/* Avatar + Status */}
       <div className="flex flex-col items-center gap-3">
@@ -18,7 +18,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           <img
             src={transformImage(user?.avatar?.url)}
             alt={user?.name}
-            className="w-84 h-84 rounded-full object-cover"
+            className="w-24 h-24 rounded-full object-cover"
           />
           {/* Online dot */}
           <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />
@@ -41,7 +41,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       </div>
 
       {/* Actions */}
-      <div className="mt-6 flex flex-col gap-2 border-b border-accent">
+      <div className="mt-2 flex flex-col gap-2 border-b border-accent">
         <ActionItem icon={<User size={16} />} label="Edit Profile" />
         <ActionItem icon={<Settings size={16} />} label="Settings" />
         <ActionItem icon={<Bell size={16} />} label="Notifications" />

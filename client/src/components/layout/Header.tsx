@@ -194,7 +194,7 @@ const Header = () => {
             {isDialog && (
               <div
                 ref={boxRef}
-                className="absolute right-0 mt-2 w-44 rounded-xl bg-white shadow-lg border border-accent"
+                className="absolute right-0 mt-2 z-50 w-44 rounded-xl bg-white shadow-lg border border-accent"
               >
                 <ul className="flex flex-col py-2 text-sm font-medium text-text">
                   <li>

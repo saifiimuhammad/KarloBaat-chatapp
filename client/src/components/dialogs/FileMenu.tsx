@@ -1,4 +1,4 @@
-import React, { type ChangeEvent } from "react";
+import React, { useEffect, useRef, type ChangeEvent } from "react";
 import { Image, Mic, Video, FileText } from "lucide-react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +23,8 @@ type RootState = {
 const FileMenu: React.FC<FileMenuProps> = ({ anchorEl, chatId }) => {
   const { isFileMenu } = useSelector((state: RootState) => state.misc);
   const dispatch = useDispatch();
+
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const [sendAttachments] = useSendAttachmentsMutation();
 
@@ -64,12 +66,29 @@ const FileMenu: React.FC<FileMenuProps> = ({ anchorEl, chatId }) => {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        dispatch(setIsFileMenu(false));
+      }
+    };
+
+    if (isFileMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isFileMenu, dispatch]);
+
   if (!isFileMenu || !anchorEl) return null;
 
   const rect = anchorEl.getBoundingClientRect();
 
   return (
     <div
+      ref={menuRef}
       className="fixed z-50"
       style={{
         top: rect.top - 220,
