@@ -1,33 +1,25 @@
 import {
-  Plus,
-  Users,
-  LogOut,
-  Menu,
   Bell as BellIcon,
-  Search,
-  MessageCircleHeart as MessageCircleHeartIcon,
-  EllipsisVertical as EllipsisVerticalIcon,
-  UserPlus,
+  Menu as MenuIcon,
+  MessageCircleHeart as KarlobaatLogo,
+  MessageCirclePlus as GroupIcon,
+  Search as SearchIcon,
 } from "lucide-react";
-import axios from "axios";
-import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import React, { Suspense, lazy, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { server } from "../../constants/config.js";
-import { userNotExists } from "../../redux/reducers/auth.js";
+import { resetNotificationCount } from "../../redux/reducers/chat";
 import {
   setIsMobile,
   setIsNewGroup,
   setIsNotification,
   setIsSearch,
-} from "../../redux/reducers/misc.js";
-import { resetNotificationCount } from "../../redux/reducers/chat.js";
+} from "../../redux/reducers/misc";
 
 const SearchDialog = lazy(() => import("../specific/Search.jsx"));
-const NotificationsDialog = lazy(() => import("../specific/Notifications.jsx"));
-const NewGroupDialog = lazy(() => import("../specific/NewGroup.jsx"));
+const NotificationsDialog = lazy(() => import("../specific/Notifications"));
+const NewGroupDialog = lazy(() => import("../specific/NewGroup"));
 
 interface IconBtnProps {
   title: string;
@@ -59,9 +51,6 @@ const Header = () => {
   const [tabOpened, setTabOpened] = useState<"chats" | "groups" | "settings">(
     "chats"
   );
-  const [isDialog, setIsDialog] = useState(false);
-
-  const boxRef = useRef<HTMLDivElement>(null);
 
   const isMobile = window.innerWidth <= 500;
 
@@ -69,29 +58,6 @@ const Header = () => {
     (state: any) => state.misc
   );
   const { notificationCount } = useSelector((state: any) => state.chat);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
-        setIsDialog(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const logoutHandler = async () => {
-    try {
-      const { data } = await axios.get(`${server}/api/v1/user/logout`, {
-        withCredentials: true,
-      });
-      dispatch(userNotExists());
-      toast.CheckmarkIcon(data.message);
-    } catch (err: any) {
-      toast.ErrorIcon(err?.response?.data?.message || "Logout failed");
-    }
-  };
 
   return (
     <>
@@ -103,23 +69,26 @@ const Header = () => {
               onClick={() => dispatch(setIsMobile(true))}
               className="p-2 rounded-lg hover:bg-secondary/20"
             >
-              <Menu size={20} />
+              <MenuIcon size={20} />
             </button>
           )}
 
-          <h2
-            className="text-lg font-semibold tracking-tight flex items-center justify-center gap-1 text-center text-text/80 cursor-pointer"
+          <button
+            className="text-lg font-semibold tracking-tight flex items-center justify-center gap-1 text-center text-text/80 cursor-pointer bg-transparent border-none hover:opacity-80 transition"
             onClick={() => navigate("/")}
           >
-            <MessageCircleHeartIcon /> Karlobaat
-          </h2>
+            <KarlobaatLogo /> Karlobaat
+          </button>
         </div>
 
         {/* Toggle Pill Button */}
         <div className="w-full flex items-center justify-center">
           <div className="w-75 rounded-xl bg-background-light p-1 flex my-6">
             <button
-              onClick={() => setTabOpened("chats")}
+              onClick={() => {
+                navigate("/");
+                setTabOpened("chats");
+              }}
               className={`cursor-pointer flex-1 rounded-xl py-2 text-sm font-medium transition-all duration-200
           ${
             tabOpened === "chats"
@@ -131,7 +100,10 @@ const Header = () => {
             </button>
 
             <button
-              onClick={() => setTabOpened("groups")}
+              onClick={() => {
+                navigate("/groups");
+                setTabOpened("groups");
+              }}
               className={`cursor-pointer flex-1 rounded-xl py-2 text-sm font-medium transition-all duration-200
           ${
             tabOpened === "groups"
@@ -158,24 +130,6 @@ const Header = () => {
 
         {/* Right */}
         <div className="flex items-center gap-1 sm:gap-4">
-          {/* <IconBtn
-            title="Search"
-            icon={<Search size={20} />}
-            onClick={() => dispatch(setIsSearch(true))}
-          />
-
-          <IconBtn
-            title="New Group"
-            icon={<Plus size={20} />}
-            onClick={() => dispatch(setIsNewGroup(true))}
-          />
-
-          <IconBtn
-            title="Groups"
-            icon={<Users size={20} />}
-            onClick={() => navigate("/groups")}
-          /> */}
-
           <IconBtn
             title="Notifications"
             icon={<BellIcon size={20} />}
@@ -185,57 +139,18 @@ const Header = () => {
               dispatch(resetNotificationCount());
             }}
           />
-          <div className="relative">
-            <IconBtn
-              title="Others"
-              icon={<EllipsisVerticalIcon size={20} />}
-              onClick={() => setIsDialog(!isDialog)}
-            />
-            {isDialog && (
-              <div
-                ref={boxRef}
-                className="absolute right-0 mt-2 z-50 w-44 rounded-xl bg-white shadow-lg border border-accent"
-              >
-                <ul className="flex flex-col py-2 text-sm font-medium text-text">
-                  <li>
-                    <button
-                      className="flex w-full items-center gap-2 px-4 py-2 hover:bg-accent transition cursor-pointer"
-                      onClick={() => dispatch(setIsSearch(true))}
-                    >
-                      <Search size={18} />
-                      Search
-                    </button>
-                  </li>
 
-                  <li>
-                    <button
-                      className="flex w-full items-center gap-2 px-4 py-2 hover:bg-accent transition cursor-pointer"
-                      onClick={() => dispatch(setIsNewGroup(true))}
-                    >
-                      <UserPlus size={18} />
-                      New Group
-                    </button>
-                  </li>
+          <IconBtn
+            title="Search"
+            icon={<SearchIcon size={20} />}
+            onClick={() => dispatch(setIsSearch(true))}
+          />
 
-                  <li>
-                    <button
-                      className="flex w-full items-center gap-2 px-4 py-2 hover:bg-accent transition cursor-pointer"
-                      onClick={() => navigate("/groups")}
-                    >
-                      <Users size={18} />
-                      Groups
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* <IconBtn
-            title="Logout"
-            icon={<LogOut size={20} />}
-            onClick={logoutHandler}
-          /> */}
+          <IconBtn
+            title="New Group"
+            icon={<GroupIcon size={20} />}
+            onClick={() => dispatch(setIsNewGroup(true))}
+          />
         </div>
       </header>
 

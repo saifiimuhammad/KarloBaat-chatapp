@@ -1,12 +1,30 @@
 import React from "react";
 import { User, Settings, Bell, LogOut, ChevronRight } from "lucide-react";
 import { transformImage } from "../../lib/features";
-
+import { useDispatch } from "react-redux";
+import { userNotExists } from "../../redux/reducers/auth";
+import { server } from "../../constants/config";
+import toast from "react-hot-toast";
+import axios from "axios";
 interface ProfileProps {
   user: any;
 }
 
 const Profile: React.FC<ProfileProps> = ({ user }) => {
+  const dispatch = useDispatch();
+
+  const logoutHandler = async () => {
+    try {
+      const { data } = await axios.get(`${server}/api/v1/user/logout`, {
+        withCredentials: true,
+      });
+      dispatch(userNotExists());
+      toast.success(data.message);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Logout failed");
+    }
+  };
+
   return (
     <div className="w-full max-w-sm mx-auto px-4 py-6 pt-0">
       {/* Header */}
@@ -48,7 +66,10 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       </div>
 
       {/* Logout */}
-      <button className="mt-4 w-full flex items-center justify-center gap-2 py-3 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 transition text-sm">
+      <button
+        className="mt-4 w-full flex items-center justify-center gap-2 py-3 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 transition text-sm cursor-pointer"
+        onClick={logoutHandler}
+      >
         <LogOut size={16} />
         Log Out
       </button>

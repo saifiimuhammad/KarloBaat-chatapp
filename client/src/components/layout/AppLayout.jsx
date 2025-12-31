@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useMyChatsQuery } from "../../redux/api/api.js";
-import Title from "../shared/Title.jsx";
-import ChatList from "../specific/ChatList.tsx";
-import Profile from "../specific/Profile.tsx";
-import Header from "./Header.tsx";
+import { useMyChatsQuery } from "../../redux/api/api";
+import Title from "../shared/Title";
+import ChatList from "../specific/ChatList";
+import Profile from "../specific/Profile";
+import Header from "./Header";
 
 import { Drawer, Grid, Skeleton } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,21 +13,21 @@ import {
   NEW_REQUEST,
   REFETCH_CHATS,
 } from "../../constants/events.js";
-import { useErrors, useSocketEvents } from "../../hooks/hooks.jsx";
-import { getorSaveFromStorage } from "../../lib/features.js";
+import { useErrors, useSocketEvents } from "../../hooks/hooks";
+import { getorSaveFromStorage } from "../../lib/features";
 import {
   incrementNotification,
   setNewMessagesAlert,
-} from "../../redux/reducers/chat.js";
+} from "../../redux/reducers/chat";
 import {
   setIsDeleteMenu,
   setIsMobile,
   setSelectedDeleteChat,
-} from "../../redux/reducers/misc.js";
-import { getSocket } from "../../socket.jsx";
-import DeleteChatMenu from "../dialogs/DeleteChatMenu.jsx";
-import { ONLINE_USERS } from "../../../../server/constants/events.js";
-import { matteBlack } from "../../constants/colors.js";
+} from "../../redux/reducers/misc";
+import { getSocket } from "../../socket";
+import DeleteChatMenu from "../dialogs/DeleteChatMenu";
+import { ONLINE_USERS } from "../../../../server/constants/events";
+import { matteBlack } from "../../constants/colors";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -83,6 +83,8 @@ const AppLayout = () => (WrappedComponent) => {
     const onlineUsersListener = useCallback((data) => {
       setOnlineUsers(data);
     }, []);
+
+    console.log("Online users: ", onlineUsers);
 
     const eventHandlers = {
       [NEW_MESSAGE_ALERT]: newMessageAlertListener,
@@ -146,6 +148,7 @@ const AppLayout = () => (WrappedComponent) => {
               chats={data?.chats}
               chatId={chatId}
               user={user}
+              onlineUsers={onlineUsers}
             />
           </Grid>
           <Grid

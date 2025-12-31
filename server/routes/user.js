@@ -9,6 +9,7 @@ import {
   acceptFriendRequest,
   getAllNotifications,
   getMyFriends,
+  fetchUserDetails,
 } from "../controllers/user.js";
 import { singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
@@ -48,5 +49,7 @@ app.put(
 
 app.get("/notifications", getAllNotifications);
 app.get("/friends", getMyFriends);
+
+app.get("/fetch/:id", fetchUserDetails);
 
 export default app;

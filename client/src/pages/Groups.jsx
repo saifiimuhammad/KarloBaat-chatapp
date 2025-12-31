@@ -22,28 +22,28 @@ import {
 import React, { Suspense, lazy, memo, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AvatarCard from "../components/shared/AvatarCard";
-import UserItem from "../components/shared/UserItem.jsx";
-import { Link } from "../components/styles/StyledComponents.jsx";
-import { matteBlack } from "../constants/colors.js";
+import UserItem from "../components/shared/UserItem";
+import { Link } from "../components/styles/StyledComponents";
+import { matteBlack } from "../constants/colors";
 
 const ConfirmDeleteDialog = lazy(() =>
-  import("../components/dialogs/ConfirmDeleteDialog.jsx")
+  import("../components/dialogs/ConfirmDeleteDialog")
 );
 const AddMemberDialog = lazy(() =>
-  import("../components/dialogs/AddMemberDialog.jsx")
+  import("../components/dialogs/AddMemberDialog")
 );
 
 import { useDispatch, useSelector } from "react-redux";
-import { LayoutLoader } from "../components/layout/Loaders.jsx";
-import { useAsyncMutation, useErrors } from "../hooks/hooks.jsx";
+import { LayoutLoader } from "../components/layout/Loaders";
+import { useAsyncMutation, useErrors } from "../hooks/hooks";
 import {
   useChatDetailsQuery,
   useDeleteChatMutation,
   useMyGroupsQuery,
   useRemoveGroupMembersMutation,
   useRenameGroupMutation,
-} from "../redux/api/api.js";
-import { setIsAddMember } from "../redux/reducers/misc.js";
+} from "../redux/api/api";
+import { setIsAddMember } from "../redux/reducers/misc";
 
 const Groups = () => {
   const chatId = useSearchParams()[0].get("group");

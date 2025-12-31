@@ -235,6 +235,20 @@ const getMyFriends = TryCatch(async (req, res, next) => {
   }
 });
 
+const fetchUserDetails = TryCatch(async (req, res, next) => {
+  console.log("running func 2");
+  const userId = req.params.id;
+  console.log(userId);
+  const user = await User.findById(userId);
+  console.log(user);
+  if (!user) return next(new ErrorHandler("User not found", 404));
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
 export {
   acceptFriendRequest,
   getAllNotifications,
@@ -245,4 +259,5 @@ export {
   newUser,
   searchUser,
   sendFriendRequest,
+  fetchUserDetails,
 };

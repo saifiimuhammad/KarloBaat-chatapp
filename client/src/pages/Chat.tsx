@@ -32,6 +32,8 @@ import { setIsFileMenu } from "../redux/reducers/misc";
 import { getSocket } from "../socket";
 
 import { useInfiniteScrollTop } from "6pp";
+import { server } from "../constants/config";
+import axios from "axios";
 
 /* ---------------- types ---------------- */
 
@@ -49,6 +51,7 @@ interface ChatProps {
     _id: string;
     name: string;
   };
+  onlineUsers: string[];
 }
 
 interface User {
@@ -68,9 +71,20 @@ interface Message {
   createdAt: string;
 }
 
+type UserDetails = {
+  avatar: {
+    public_id: string;
+    url: string;
+  };
+  name: string;
+  username: string;
+  bio: string;
+  createdAt: string; // API-safe
+};
+
 /* ---------------- component ---------------- */
 
-const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
+const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const socket = getSocket();
@@ -84,14 +98,20 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const currentChat = chats.find((chat) => chat._id === chatId);
+  const currentChat = chats.find((chat) => chat._id === chatId)!;
+  const otherMembers =
+    currentChat.members?.filter((id) => id !== user._id) || [];
+  const isOnline = onlineUsers.includes(otherMembers[0]!);
 
+  // console.log(currentChat);
+  const [showInfo, setShowInfo] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [page, setPage] = useState(1);
   const [fileMenuAnchor, setFileMenuAnchor] = useState<HTMLElement | null>(
     null
   );
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
   const [iamTyping, setIamTyping] = useState(false);
   const [userTyping, setUserTyping] = useState(false);
@@ -161,6 +181,25 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
       );
     });
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await axios.get(
+          `${server}/api/v1/user/fetch/${otherMembers[0]}`,
+          {
+            withCredentials: true,
+          }
+        );
+
+        setUserDetails(data.user);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -277,7 +316,7 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
           <div>
             <p className="font-semibold text-text">{currentChat?.name}</p>
             <p className="text-xs text-secondary">
-              {currentChat?.isOnline ? "Online" : "Offline"}
+              {isOnline ? "Online" : "Offline"}
             </p>
           </div>
         </div>
@@ -285,7 +324,11 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
         <div className="flex gap-4 text-primary">
           <Phone size={18} className="cursor-pointer hover:text-secondary" />
           <Video size={18} className="cursor-pointer hover:text-secondary" />
-          <Info size={18} className="cursor-pointer hover:text-secondary" />
+          <Info
+            size={18}
+            className="cursor-pointer hover:text-secondary"
+            onClick={() => setShowInfo(true)}
+          />
         </div>
       </div>
 
@@ -357,6 +400,119 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user }) => {
       </form>
 
       <FileMenu anchorEl={fileMenuAnchor} chatId={chatId} />
+
+      {/* Info Dialog */}
+
+      {showInfo && currentChat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowInfo(false)}
+          />
+
+          {/* Dialog */}
+          <div
+            className="
+        relative z-50 w-full max-w-md
+        rounded-2xl
+        bg-background-2
+        p-6
+        shadow-xl
+        border border-accent
+      "
+          >
+            {/* Header */}
+            <div className="flex items-center gap-4 border-b border-accent pb-4">
+              <img
+                src={currentChat.avatar || "/default-avatar.png"}
+                className="h-14 w-14 rounded-full border border-accent"
+                alt="chat avatar"
+              />
+
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold text-text">
+                  {currentChat.name}
+                </h2>
+                <p className="text-sm text-text-light">
+                  {currentChat.groupChat ? "Group Chat" : "Private Chat"}
+                </p>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="mt-5 space-y-4 text-sm">
+              {/* -------- Chat Info -------- */}
+              <div className="flex justify-between items-center">
+                <span className="text-text-light">Status</span>
+                <span
+                  className={`font-medium ${
+                    isOnline ? "text-primary" : "text-text-light"
+                  }`}
+                >
+                  {isOnline ? "Online" : "Offline"}
+                </span>
+              </div>
+
+              {currentChat.groupChat && (
+                <div className="flex justify-between items-center">
+                  <span className="text-text-light">Members</span>
+                  <span className="font-medium text-text">
+                    {currentChat.members?.length || 0}
+                  </span>
+                </div>
+              )}
+
+              {/* -------- User Details -------- */}
+              {!userDetails ? (
+                <p className="text-text-light text-center mt-4">
+                  Loading user details...
+                </p>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-light">Full Name</span>
+                    <span className="font-medium text-text">
+                      {userDetails.name}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-light">Username</span>
+                    <span className="font-medium text-text">
+                      @{userDetails.username}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-light">Bio</span>
+                    <span className="font-medium text-text text-right w-full">
+                      {userDetails.bio || "-"}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-text-light">Joined</span>
+                    <span className="font-medium text-text">
+                      {new Date(userDetails.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowInfo(false)}
+                className="rounded-xl bg-accent px-4 py-2 text-sm font-medium text-text hover:bg-background-light transition cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
