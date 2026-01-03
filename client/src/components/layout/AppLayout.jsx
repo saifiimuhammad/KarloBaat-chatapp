@@ -3,7 +3,6 @@ import { useMyChatsQuery } from "../../redux/api/api";
 import Title from "../shared/Title";
 import ChatList from "../specific/ChatList";
 import Profile from "../specific/Profile";
-import Header from "./Header";
 
 import { Drawer, Grid, Skeleton } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -98,7 +97,6 @@ const AppLayout = () => (WrappedComponent) => {
     return (
       <div className="main-container">
         <Title />
-        <Header />
 
         <DeleteChatMenu
           dispatch={dispatch}

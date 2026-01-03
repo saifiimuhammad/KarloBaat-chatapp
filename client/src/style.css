@@ -12,7 +12,7 @@
   --color-accent: #edefeb;
   --color-background: #ebd5ab;
   --color-background-2: #f7f7f6;
-  --color-background-light: #efeae2;
+  --color-background-light: #fbf7ef;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -22,55 +22,4 @@
 .no-scrollbar {
   -ms-overflow-style: none; /* IE + Edge */
   scrollbar-width: none; /* Firefox */
-}
-
-/* html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: var(--font-family);
-  background-color: #020617;
-  color: #f1f5f9;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-} */
-
-html,
-body {
-  background-color: white;
-}
-
-/* .btn {
-  background-color: #628141;
-} */
-
-.line-divider {
-  width: 100%;
-  height: 0.5px;
-  background-color: #3b3b3b;
-  border: none;
-}
-
-.main-container {
-  /* margin: 1rem; */
-  background: transparent;
-}
-
-.navbar {
-  margin-bottom: 0.5rem;
-}
-
-.nav-icon:hover {
-  color: #1976d2;
-}
-
-@media screen and (max-width: 500px) {
-  .main-container {
-    margin: 0rem;
-  }
-
-  .nav-img {
-    display: none;
-  }
 }

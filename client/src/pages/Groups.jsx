@@ -1,39 +1,18 @@
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Done as DoneIcon,
-  Edit as EditIcon,
-  KeyboardBackspace as KeyboardBackspaceIcon,
-  Menu as MenuIcon,
-} from "@mui/icons-material";
-import {
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  Drawer,
-  Grid,
-  IconButton,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
 import React, { Suspense, lazy, memo, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import AvatarCard from "../components/shared/AvatarCard";
-import UserItem from "../components/shared/UserItem";
-import { Link } from "../components/styles/StyledComponents";
-import { matteBlack } from "../constants/colors";
-
-const ConfirmDeleteDialog = lazy(() =>
-  import("../components/dialogs/ConfirmDeleteDialog")
-);
-const AddMemberDialog = lazy(() =>
-  import("../components/dialogs/AddMemberDialog")
-);
-
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  Check,
+  Trash2,
+  Search,
+  Pen,
+  Users,
+  UserPlus,
+  UserMinus,
+  Flag,
+} from "lucide-react";
+
+import AvatarCard from "../components/shared/AvatarCard";
 import { LayoutLoader } from "../components/layout/Loaders";
 import { useAsyncMutation, useErrors } from "../hooks/hooks";
 import {
@@ -44,18 +23,22 @@ import {
   useRenameGroupMutation,
 } from "../redux/api/api";
 import { setIsAddMember } from "../redux/reducers/misc";
+import { transformImage } from "../lib/features";
+
+const ConfirmDeleteDialog = lazy(() =>
+  import("../components/dialogs/ConfirmDeleteDialog")
+);
+const AddMemberDialog = lazy(() =>
+  import("../components/dialogs/AddMemberDialog")
+);
 
 const Groups = () => {
   const chatId = useSearchParams()[0].get("group");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const { isAddMember } = useSelector((state) => state.misc);
 
-  const navigateBack = () => navigate("/");
-
   const myGroups = useMyGroupsQuery();
-
   const groupDetails = useChatDetailsQuery(
     { chatId, populate: true },
     { skip: !chatId }
@@ -77,27 +60,20 @@ const Groups = () => {
   const [groupNameUpdatedValue, setGroupNameUpdatedValue] = useState("");
   const [groupMembers, setGroupMembers] = useState([]);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   const errors = [
-    {
-      isError: myGroups.isError,
-      error: myGroups.error,
-    },
-    {
-      isError: groupDetails.isError,
-      error: groupDetails.error,
-    },
+    { isError: myGroups.isError, error: myGroups.error },
+    { isError: groupDetails.isError, error: groupDetails.error },
   ];
-
   useErrors(errors);
 
   useEffect(() => {
     if (groupDetails.data) {
-      setGroupName(groupDetails?.data?.chat?.name);
-      setGroupNameUpdatedValue(groupDetails?.data?.chat?.name);
-      setGroupMembers(groupDetails?.data?.chat?.members);
+      setGroupName(groupDetails.data.chat.name);
+      setGroupNameUpdatedValue(groupDetails.data.chat.name);
+      setGroupMembers(groupDetails.data.chat.members);
     }
-
     return () => {
       setGroupName("");
       setGroupNameUpdatedValue("");
@@ -106,10 +82,7 @@ const Groups = () => {
     };
   }, [groupDetails.data]);
 
-  const handleMobile = () => {
-    setIsMobileMenuOpen((prev) => !prev);
-  };
-
+  const handleMobile = () => setIsMobileMenuOpen((prev) => !prev);
   const handleMobileClose = () => setIsMobileMenuOpen(false);
 
   const updateGroupName = () => {
@@ -119,23 +92,13 @@ const Groups = () => {
       name: groupNameUpdatedValue,
     });
   };
-  const openConfirmDeleteHandler = () => {
-    setConfirmDeleteDialog(true);
-  };
-  const closeConfirmDeleteHandler = () => {
-    setConfirmDeleteDialog(false);
-  };
 
-  const openAddMemberHandler = () => {
-    dispatch(setIsAddMember(true));
-  };
+  const openConfirmDeleteHandler = () => setConfirmDeleteDialog(true);
+  const closeConfirmDeleteHandler = () => setConfirmDeleteDialog(false);
 
-  const removeMemberHandler = (userId) => {
-    removeMember("Removing Member...", {
-      chatId,
-      userId,
-    });
-  };
+  const openAddMemberHandler = () => dispatch(setIsAddMember(true));
+  const removeMemberHandler = (userId) =>
+    removeMember("Removing Member...", { chatId, userId });
 
   const deleteHandler = () => {
     deleteGroup("Deleting group...", chatId);
@@ -148,7 +111,6 @@ const Groups = () => {
       setGroupName(`Group Name ${chatId}`);
       setGroupNameUpdatedValue(`Group Name ${chatId}`);
     }
-
     return () => {
       setGroupName("");
       setGroupNameUpdatedValue("");
@@ -156,207 +118,157 @@ const Groups = () => {
     };
   }, [chatId]);
 
-  const IconBtns = (
-    <>
-      <Box
-        sx={{
-          display: {
-            xs: "block",
-            sm: "none",
-          },
-          position: "fixed",
-          right: "1rem",
-          top: "1rem",
-        }}
-      >
-        <Tooltip title="Groups list">
-          <IconButton onClick={handleMobile}>
-            <MenuIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      <Tooltip title="Go Back">
-        <IconButton
-          sx={{
-            position: "absolute",
-            top: "2rem",
-            left: "2rem",
-            bgcolor: matteBlack,
-            color: "white",
-            ":hover": {
-              bgcolor: "rgba(0,0,0,0.7)",
-            },
-          }}
-          onClick={navigateBack}
-        >
-          <KeyboardBackspaceIcon />
-        </IconButton>
-      </Tooltip>
-    </>
-  );
-
   const GroupName = (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="center"
-      spacing="1rem"
-      padding="3rem"
-    >
+    <div className="flex flex-col sm:flex-row items-center justify-start gap-4 w-full">
       {isEdit ? (
-        <>
-          <TextField
+        <div className="relative w-82">
+          <input
+            className="px-4 py-3 rounded-xl bg-white text-text 
+        placeholder:text-[#9b988c] placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full"
+            type="text"
             value={groupNameUpdatedValue}
             onChange={(e) => setGroupNameUpdatedValue(e.target.value)}
           />
-          <IconButton onClick={updateGroupName} disabled={isLoadingGroupName}>
-            <DoneIcon />
-          </IconButton>
-        </>
+          <button
+            onClick={updateGroupName}
+            disabled={isLoadingGroupName}
+            className="absolute top-[0.45rem] right-2 p-2 bg-white text-green-500 hover:bg-green-50 rounded-full disabled:opacity-50"
+          >
+            <Check size={18} />
+          </button>
+        </div>
       ) : (
         <>
-          <Typography variant="h5">{groupName}</Typography>
-          <IconButton
+          <h2 className="text-4xl font-bold text-text">{groupName}</h2>
+          <button
             onClick={() => setIsEdit(true)}
             disabled={isLoadingGroupName}
+            className="p-3 rounded-full hover:bg-secondary hover:text-white disabled:opacity-50 cursor-pointer"
           >
-            <EditIcon />
-          </IconButton>
+            <Pen size={18} />
+          </button>
         </>
       )}
-    </Stack>
+    </div>
   );
 
-  const ButtonGroup = (
-    <Stack
-      direction={{
-        xs: "column-reverse",
-        sm: "row",
-      }}
-      spacing="1rem"
-      p={{
-        xs: "0",
-        sm: "1rem",
-        md: "1rem 4rem",
-      }}
-    >
-      <Button
-        size="large"
-        color="error"
-        startIcon={<DeleteIcon />}
-        onClick={openConfirmDeleteHandler}
-      >
-        Delete Group
-      </Button>
-      <Button
-        size="large"
-        variant="contained"
-        startIcon={<AddIcon />}
-        onClick={openAddMemberHandler}
-      >
-        Add Member
-      </Button>
-    </Stack>
-  );
+  if (myGroups.isLoading) return <LayoutLoader />;
 
-  return myGroups.isLoading ? (
-    <LayoutLoader />
-  ) : (
-    <Grid
-      container
-      height="100vh"
-      sx={{
-        padding: "1rem",
-      }}
-    >
-      <Grid
-        item
-        sm={4}
-        sx={{
-          display: {
-            xs: "none",
-            sm: "block",
-          },
-        }}
-      >
+  return (
+    <div className="flex h-screen gap-4 bg-background-light">
+      {/* Groups List */}
+      <div className="hidden sm:block sm:w-1/3 h-full overflow-auto px-4 pt-4 no-scrollbar bg-[#F4EFE6] border-r border-zinc-300">
+        <div className="relative w-full">
+          <div
+            className={`absolute left-3 top-5 -translate-y-1/2 text-[#9b988c] ${
+              isActive ? "text-text/70" : ""
+            }`}
+          >
+            <Search size={16} />
+          </div>
+          <input
+            className="w-full pl-9 pr-3 py-2 rounded-xl bg-white text-text 
+        placeholder:text-[#9b988c] placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            type="text"
+            name="search"
+            id="search"
+            placeholder="Search groups..."
+            onFocus={() => setIsActive(true)}
+            onBlur={() => setIsActive(false)}
+          />
+        </div>
+
+        <h2 className="uppercase text-xs text-text-light font-medium my-4">
+          All Groups
+        </h2>
         <GroupsList myGroups={myGroups?.data?.groups} chatId={chatId} />
-      </Grid>
+      </div>
 
-      <Grid
-        xs={12}
-        sm={8}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          flexDirection: "column",
-          position: "relative",
-          padding: "1rem 3rem",
-        }}
-      >
-        {IconBtns}
+      {/* Group Details */}
+      <div className="flex-1 flex flex-col items-center relative sm:px-12">
         {groupName ? (
           <>
-            {GroupName}
+            <div className="w-full px-12 pt-18 pb-8">
+              {GroupName}
+              <div className="flex items-center justify-start gap-3 text-primary py-2">
+                <Users size={18} /> {groupMembers.length} Members{" "}
+                <span className="w-[0.4rem] h-[0.4rem] rounded-full bg-primary"></span>{" "}
+                Online
+              </div>
+            </div>
 
-            <Typography margin="2rem" alignSelf="flex-start" variant="body1">
-              Members
-            </Typography>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+              <div className="md:col-span-2">
+                <div className="mb-2 flex items-center justify-between w-full">
+                  <h3 className="self-start text-lg text-text font-semibold flex items-center justify-center gap-2">
+                    Members{" "}
+                    <span className="text-primary text-[1rem] font-normal">
+                      ({groupMembers.length})
+                    </span>
+                  </h3>
+                  <button
+                    onClick={openAddMemberHandler}
+                    className="flex items-center gap-2 text-primary hover:text-secondary cursor-pointer text-sm"
+                  >
+                    <UserPlus size={18} /> Add Member
+                  </button>
+                </div>
 
-            <Stack
-              maxWidth="45rem"
-              width="100%"
-              boxSizing="border-box"
-              padding={{
-                xs: "0",
-                sm: "1rem",
-                md: "1rem 4rem",
-              }}
-              spacing="2rem"
-              height="50vh"
-              overflow="auto"
-            >
-              {isLoadingRemoveMember ? (
-                <CircularProgress />
-              ) : (
-                groupMembers.map((i) => (
-                  <UserItem
-                    key={i._id}
-                    user={i}
-                    isAdded
-                    styling={{
-                      boxShadow: "0 0 0.5rem rgba(0,0,0,0.2)",
-                      padding: "1rem 2rem",
-                      borderRadius: "1rem",
-                    }}
-                    handler={removeMemberHandler}
-                  />
-                ))
-              )}
-            </Stack>
+                <div className="w-full flex flex-col border border-zinc-300 rounded-xl bg-white divide-y divide-zinc-300">
+                  {isLoadingRemoveMember
+                    ? "Loading..."
+                    : groupMembers.map((i) => (
+                        <GroupMember
+                          key={i._id}
+                          user={i}
+                          handler={removeMemberHandler}
+                          isAdded
+                        />
+                      ))}
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="bg-white p-5 pt-3 rounded-xl border border-zinc-300">
+                  <h4 className="font-semibold text-text text-sm mb-2">
+                    Settings
+                  </h4>
 
-            {ButtonGroup}
+                  <hr className="border-zinc-300 my-2" />
+                  <button
+                    onClick={openConfirmDeleteHandler}
+                    className="w-full flex items-center gap-3 text-red-600 hover:text-red-700 text-sm font-medium p-2 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <Trash2 size={18} />
+                    Delete Group
+                  </button>
+                  <button className="w-full flex items-center gap-3 text-text-muted hover:text-black text-sm font-medium p-2 mt-1 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
+                    <Flag size={18} />
+                    Report Group
+                  </button>
+                </div>
+              </div>
+            </div>
           </>
         ) : (
-          <div
-            style={{
-              paddingTop: "1.85rem",
-              fontSize: "1.25rem",
-            }}
-          >
-            Select a group first!
+          <div className="pt-16 flex flex-col items-center gap-2 text-center">
+            <p className="text-xl font-semibold text-text">No group selected</p>
+            <p className="text-sm text-text-light">
+              Choose a group to see messages
+            </p>
           </div>
         )}
-      </Grid>
+      </div>
 
+      {/* Add Member Dialog */}
       {isAddMember && (
-        <Suspense fallback={<Backdrop open />}>
+        <Suspense fallback={<div className="fixed inset-0 bg-black/50" />}>
           <AddMemberDialog chatId={chatId} />
         </Suspense>
       )}
 
+      {/* Confirm Delete Dialog */}
       {confirmDeleteDialog && (
-        <Suspense fallback={<Backdrop open />}>
+        <Suspense fallback={<div className="fixed inset-0 bg-black/50" />}>
           <ConfirmDeleteDialog
             open={confirmDeleteDialog}
             handleClose={closeConfirmDeleteHandler}
@@ -365,64 +277,98 @@ const Groups = () => {
         </Suspense>
       )}
 
-      <Drawer
-        sx={{
-          display: {
-            xs: "block",
-            sm: "none",
-          },
-        }}
-        open={isMobileMenuOpen}
-        onClose={handleMobileClose}
-      >
-        <GroupsList
-          w="70vw"
-          myGroups={myGroups?.data?.groups}
-          chatId={chatId}
-        />
-      </Drawer>
-    </Grid>
+      {/* Mobile Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 bg-black/50 sm:hidden z-50">
+          <div className="bg-white w-4/5 h-full p-4">
+            <GroupsList myGroups={myGroups?.data?.groups} chatId={chatId} />
+            <button
+              onClick={handleMobileClose}
+              className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-const GroupsList = ({ w = "100%", myGroups = [], chatId }) => (
-  <Stack
-    width={w}
-    sx={{
-      height: "100%",
-      overflow: "auto",
-      borderRadius: "15px",
-      backgroundColor: "#f1f1f1",
-    }}
-  >
+const GroupsList = ({ myGroups = [] }) => (
+  <div className="flex flex-col gap-2 h-full overflow-auto rounded">
     {myGroups.length > 0 ? (
-      myGroups.map((group) => (
-        <GroupsListItem key={group._id} group={group} chatId={chatId} />
-      ))
+      myGroups.map((group) => <GroupsListItem key={group._id} group={group} />)
     ) : (
-      <Typography textAlign="center" padding="1rem">
-        No groups
-      </Typography>
+      <div className="text-center p-4">No groups</div>
     )}
-  </Stack>
+  </div>
 );
 
-const GroupsListItem = memo(({ group, chatId }) => {
+const GroupsListItem = memo(({ group }) => {
   const { name, avatar, _id } = group;
-
   return (
-    <Link
-      to={`?group=${_id}`}
-      onClick={(e) => {
-        if (chatId === _id) e.preventDefault();
-      }}
-    >
-      <Stack direction="row" spacing="1rem" alignItems="center">
+    <Link to={`?group=${_id}`}>
+      <div className="flex items-center gap-3 w-full px-3 py-4 rounded-xl hover:bg-[#FBF9F5] cursor-pointer hover:border hover:border-zinc-300 outline-none">
         <AvatarCard avatar={avatar} />
-        <Typography>{name}</Typography>
-      </Stack>
+        <div className="flex flex-col items-start justify-center gap-1 w-full">
+          <div className="w-full flex items-center justify-between">
+            <h3 className="font-semibold">{name}</h3>
+
+            <p className="text-xs text-text-light">Yesterday</p>
+          </div>
+          <p className="text-xs text-text-light">Mom: Family dinner at 9pm?</p>
+        </div>
+        <div className="py-1 px-2 rounded-full text-xs text-white bg-primary">
+          3
+        </div>
+      </div>
     </Link>
   );
 });
+
+const GroupMember = memo(
+  ({ user, handler, handlerIsLoading, isAdded = false }) => {
+    return (
+      <div className="flex items-center justify-between p-4 hover:bg-background-light transition-colors cursor-pointer">
+        <div className="flex items-center gap-3">
+          <img
+            src={transformImage(user.avatar)}
+            className="size-10 rounded-full bg-cover bg-center"
+            alt={user.name}
+          />
+
+          <div className="flex items-start justify-center flex-col gap-[.15rem]">
+            <p className="text-sm font-semibold text-text flex items-center gap-2">
+              {user.name}
+
+              {user.isAdmin && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] bg-secondary text-text font-bold tracking-wide uppercase">
+                  Admin
+                </span>
+              )}
+            </p>
+
+            <p className="text-xs text-text-light">
+              {user.status ?? "Offline"}
+            </p>
+          </div>
+        </div>
+
+        <button
+          className={`p-2 rounded-full transition-colors cursor-pointer ${
+            isAdded
+              ? "text-red-600 hover:bg-red-50"
+              : "text-green-600 hover:bg-green-50"
+          }`}
+          onClick={() => handler(user._id)}
+          disabled={handlerIsLoading}
+        >
+          {isAdded ? <UserMinus size={18} /> : <UserPlus size={18} />}
+        </button>
+      </div>
+    );
+  }
+);
 
 export default Groups;
