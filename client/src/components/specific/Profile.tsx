@@ -1,16 +1,19 @@
 import React from "react";
-import { User, Settings, Bell, LogOut, ChevronRight } from "lucide-react";
+import { User, Settings, LogOut, ChevronRight } from "lucide-react";
 import { transformImage } from "../../lib/features";
 import { useDispatch } from "react-redux";
 import { userNotExists } from "../../redux/reducers/auth";
 import { server } from "../../constants/config";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 interface ProfileProps {
   user: any;
 }
 
 const Profile: React.FC<ProfileProps> = ({ user }) => {
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
 
   const logoutHandler = async () => {
@@ -59,10 +62,13 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       </div>
 
       {/* Actions */}
-      <div className="mt-2 flex flex-col gap-2 border-b border-accent">
-        <ActionItem icon={<User size={16} />} label="Edit Profile" />
+      <div className="my-4 pb-2 flex flex-col gap-2 border-b border-accent">
+        <ActionItem
+          icon={<User size={16} />}
+          label="Edit Profile"
+          onClick={() => navigate(`/edit-profile`)}
+        />
         <ActionItem icon={<Settings size={16} />} label="Settings" />
-        <ActionItem icon={<Bell size={16} />} label="Notifications" />
       </div>
 
       {/* Logout */}
@@ -84,11 +90,15 @@ export default Profile;
 interface ActionItemProps {
   icon: React.ReactNode;
   label: string;
+  onClick?: () => void;
 }
 
-const ActionItem: React.FC<ActionItemProps> = ({ icon, label }) => {
+const ActionItem: React.FC<ActionItemProps> = ({ icon, label, onClick }) => {
   return (
-    <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white hover:bg-zinc-100/80 transition">
+    <button
+      onClick={onClick}
+      className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white hover:bg-zinc-100/80 transition cursor-pointer"
+    >
       <div className="flex items-center gap-3 text-gray-700">
         <span className="p-3 rounded-full bg-background-2 text-text-light/70">
           {icon}

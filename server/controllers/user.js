@@ -249,6 +249,59 @@ const fetchUserDetails = TryCatch(async (req, res, next) => {
   });
 });
 
+const editProfile = TryCatch(async (req, res, next) => {
+  const userId = req.user;
+  const { name, username, password, bio } = req.body;
+
+  // Build update object safely
+  const updateData = {};
+
+  if (name) updateData.name = name.trim();
+  if (username) updateData.username = username.trim().toLowerCase();
+  if (bio) updateData.bio = bio.trim();
+
+  // Handle password update
+  if (password) {
+    if (password.length < 8) {
+      return next(
+        new ErrorHandler("Password must be at least 8 characters long", 400)
+      );
+    }
+
+    updateData.password = await bcrypt.hash(password, 12);
+  }
+
+  if (req.file) {
+    const result = await uploadFilesToCloudinary([file]);
+
+    updateData.avatar = {
+      public_id: result[0].public_id,
+      url: result[0].url,
+    };
+  }
+
+  // Prevent empty updates
+  if (Object.keys(updateData).length === 0) {
+    return next(new ErrorHandler("Nothing to update", 400));
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+    runValidators: true,
+    select: "-password",
+  });
+
+  if (!updatedUser) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Profile updated successfully",
+    user: updatedUser,
+  });
+});
+
 export {
   acceptFriendRequest,
   getAllNotifications,
@@ -260,4 +313,5 @@ export {
   searchUser,
   sendFriendRequest,
   fetchUserDetails,
+  editProfile,
 };

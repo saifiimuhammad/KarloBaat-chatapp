@@ -10,6 +10,7 @@ import {
   getAllNotifications,
   getMyFriends,
   fetchUserDetails,
+  editProfile,
 } from "../controllers/user.js";
 import { singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
@@ -51,5 +52,7 @@ app.get("/notifications", getAllNotifications);
 app.get("/friends", getMyFriends);
 
 app.get("/fetch/:id", fetchUserDetails);
+
+app.patch("/update", singleAvatar, editProfile);
 
 export default app;

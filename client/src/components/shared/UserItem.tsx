@@ -11,7 +11,7 @@ interface User {
 interface UserItemProps {
   user: User;
   handler: (id: string) => void;
-  handlerIsLoading: boolean;
+  handlerIsLoading?: boolean;
   isAdded?: boolean;
   styling?: Record<string, any>;
 }

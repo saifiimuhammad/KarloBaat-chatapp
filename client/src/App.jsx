@@ -10,6 +10,7 @@ import { userExists, userNotExists } from "./redux/reducers/auth";
 import { Toaster } from "react-hot-toast";
 import { SocketProvider } from "./socket";
 import Header from "./components/layout/Header";
+import EditProfile from "./pages/EditProfile";
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Chat = lazy(() => import("./pages/Chat"));
@@ -52,6 +53,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/chat/:chatId" element={<Chat />} />
             <Route path="/groups" element={<Groups />} />
+            <Route path="/edit-profile" element={<EditProfile user={user} />} />
           </Route>
 
           <Route

@@ -25,11 +25,11 @@ import {
 import { setIsAddMember } from "../redux/reducers/misc";
 import { transformImage } from "../lib/features";
 
-const ConfirmDeleteDialog = lazy(() =>
-  import("../components/dialogs/ConfirmDeleteDialog")
+const ConfirmDeleteDialog = lazy(
+  () => import("../components/dialogs/ConfirmDeleteDialog")
 );
-const AddMemberDialog = lazy(() =>
-  import("../components/dialogs/AddMemberDialog")
+const AddMemberDialog = lazy(
+  () => import("../components/dialogs/AddMemberDialog")
 );
 
 const Groups = () => {
