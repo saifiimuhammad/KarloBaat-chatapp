@@ -20,8 +20,8 @@ import React, { useState } from "react";
 import { Link as LinkComponent, Navigate, useLocation } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
-import { grayColor, matteBlack } from "../../constants/colors.js";
-import { adminLogout } from "../../redux/thunks/admin.js";
+import { grayColor, matteBlack } from "../../constants/colors";
+import { adminLogout } from "../../redux/thunks/admin";
 
 const Link = styled(LinkComponent)`
   text-decoration: none;
@@ -110,7 +110,7 @@ const Sidebar = ({ w = "100%" }) => {
 };
 
 const AdminLayout = ({ children }) => {
-  const { isAdmin } = useSelector();
+  const { isAdmin } = useSelector((state) => state.auth);
 
   const [isMobile, setIsMobile] = useState(false);
 

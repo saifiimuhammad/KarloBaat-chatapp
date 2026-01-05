@@ -1,12 +1,12 @@
 import { Avatar, Skeleton, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import AdminLayout from "../../components/layout/AdminLayout.jsx";
-import AvatarCard from "../../components/shared/AvatarCard.jsx";
-import Table from "../../components/shared/Table.jsx";
+import AdminLayout from "../../components/layout/AdminLayout";
+import AvatarCard from "../../components/shared/AvatarCard";
+import Table from "../../components/shared/Table";
 import { useFetchData } from "6pp";
-import { server } from "../../constants/config.js";
-import { useErrors } from "../../hooks/hooks.jsx";
-import { transformImage } from "../../lib/features.js";
+import { server } from "../../constants/config";
+import { useErrors } from "../../hooks/hooks";
+import { transformImage } from "../../lib/features";
 
 const columns = [
   {

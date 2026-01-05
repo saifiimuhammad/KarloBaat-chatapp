@@ -1,11 +1,11 @@
 import { useFetchData } from "6pp";
 import { Avatar, Skeleton } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import AdminLayout from "../../components/layout/AdminLayout.jsx";
-import Table from "../../components/shared/Table.jsx";
-import { server } from "../../constants/config.js";
-import { useErrors } from "../../hooks/hooks.jsx";
-import { transformImage } from "../../lib/features.js";
+import AdminLayout from "../../components/layout/AdminLayout";
+import Table from "../../components/shared/Table";
+import { server } from "../../constants/config";
+import { useErrors } from "../../hooks/hooks";
+import { transformImage } from "../../lib/features";
 
 const columns = [
   {

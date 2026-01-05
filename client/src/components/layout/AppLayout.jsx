@@ -11,7 +11,7 @@ import {
   NEW_MESSAGE_ALERT,
   NEW_REQUEST,
   REFETCH_CHATS,
-} from "../../constants/events.js";
+} from "../../constants/events";
 import { useErrors, useSocketEvents } from "../../hooks/hooks";
 import { getorSaveFromStorage } from "../../lib/features";
 import {

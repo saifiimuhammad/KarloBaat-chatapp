@@ -16,17 +16,17 @@ import {
 } from "@mui/material";
 import moment from "moment";
 import React from "react";
-import AdminLayout from "../../components/layout/AdminLayout.jsx";
-import { DoughnutChart, LineChart } from "../../components/specific/Charts.jsx";
+import AdminLayout from "../../components/layout/AdminLayout";
+import { DoughnutChart, LineChart } from "../../components/specific/Charts";
 import {
   CurveButton,
   SearchField,
-} from "../../components/styles/StyledComponents.jsx";
-import { matteBlack } from "../../constants/colors.js";
+} from "../../components/styles/StyledComponents";
+import { matteBlack } from "../../constants/colors";
 import { useFetchData } from "6pp";
-import { server } from "../../constants/config.js";
-import { LayoutLoader } from "../../components/layout/Loaders.jsx";
-import { useErrors } from "../../hooks/hooks.jsx";
+import { server } from "../../constants/config";
+import { LayoutLoader } from "../../components/layout/Loaders";
+import { useErrors } from "../../hooks/hooks";
 
 const Dashboard = () => {
   const { loading, data, error } = useFetchData(

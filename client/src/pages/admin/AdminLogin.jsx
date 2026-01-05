@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { Container, Paper, Typography, TextField, Button } from "@mui/material";
-import { bgGradient } from "../../constants/colors.js";
+import { bgGradient } from "../../constants/colors";
 import { useInputValidation } from "6pp";
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { adminLogin, getAdmin } from "../../redux/thunks/admin.js";
+import { adminLogin, getAdmin } from "../../redux/thunks/admin";
 
 const AdminLogin = () => {
   const secretKey = useInputValidation();

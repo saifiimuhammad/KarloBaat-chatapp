@@ -5,8 +5,8 @@ import {
   orangeLight,
   purple,
   purpleLight,
-} from "../../constants/colors.js";
-import { getLast7Days } from "../../lib/features.js";
+} from "../../constants/colors";
+import { getLast7Days } from "../../lib/features";
 
 import {
   ArcElement,

@@ -2,13 +2,13 @@ import { useFetchData } from "6pp";
 import { Avatar, Box, Skeleton, Stack } from "@mui/material";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import AdminLayout from "../../components/layout/AdminLayout.jsx";
-import RenderAttachment from "../../components/shared/RenderAttachment.jsx";
-import Table from "../../components/shared/Table.jsx";
-import { server } from "../../constants/config.js";
-import { dashboardData } from "../../constants/sampleData.js";
-import { useErrors } from "../../hooks/hooks.jsx";
-import { fileFormat, transformImage } from "../../lib/features.js";
+import AdminLayout from "../../components/layout/AdminLayout";
+import RenderAttachment from "../../components/shared/RenderAttachment";
+import Table from "../../components/shared/Table";
+import { server } from "../../constants/config";
+import { dashboardData } from "../../constants/sampleData";
+import { useErrors } from "../../hooks/hooks";
+import { fileFormat, transformImage } from "../../lib/features";
 
 const columns = [
   {
