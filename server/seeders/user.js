@@ -1,32 +1,34 @@
 import { User } from "../models/user.js";
 import { faker } from "@faker-js/faker";
 
-const createUser = async (numOfUsers) => {
+const createUser = async (numOfUsers = 10) => {
   try {
-    const usersPromise = [];
+    const users = [];
 
     for (let i = 0; i < numOfUsers; i++) {
-      const tempUsers = User.create({
+      users.push({
         name: faker.person.fullName(),
-        username: faker.internet.username(),
-        email: faker.internet.email(),
+        username:
+          faker.internet.userName() +
+          faker.number.int({ min: 1000, max: 9999 }),
+        email: faker.internet.email().toLowerCase(),
         bio: faker.lorem.sentence(),
-        password: "password",
+        password: "password123",
         avatar: {
           url: faker.image.avatar(),
-          public_id: faker.system.fileName(),
+          public_id: faker.string.uuid(),
         },
         role: faker.helpers.arrayElement(["user", "admin"]),
       });
-      usersPromise.push(tempUsers);
     }
 
-    await Promise.all(usersPromise);
-    console.log("Users created", numOfUsers);
-    process.exit(1);
+    await User.insertMany(users);
+    console.log(`✅ ${numOfUsers} users created`);
+
+    process.exit(0); // SUCCESS
   } catch (error) {
-    console.error(error);
-    process.exit(1);
+    console.error("❌ Seeder error:", error);
+    process.exit(1); // FAILURE
   }
 };
 

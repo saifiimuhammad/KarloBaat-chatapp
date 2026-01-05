@@ -88,7 +88,7 @@ const Search: FC = () => {
           />
         </div>
 
-        <ul>
+        <ul className="w-full h-64 overflow-y-auto">
           {users.length > 0 ? (
             users.map((i) => (
               <UserItem

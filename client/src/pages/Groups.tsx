@@ -1,4 +1,11 @@
-import React, { Suspense, lazy, memo, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  lazy,
+  memo,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -106,6 +113,28 @@ const Groups = () => {
     navigate("/groups");
   };
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  // Debounce search input by 300ms
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery.trim().toLowerCase());
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Filtered groups based on debounced query
+  const filteredGroups = useMemo(() => {
+    if (!myGroups?.data?.groups) return [];
+    if (!debouncedQuery) return myGroups.data.groups;
+
+    return myGroups.data.groups.filter((group) =>
+      group.name.toLowerCase().includes(debouncedQuery)
+    );
+  }, [debouncedQuery, myGroups]);
+
   useEffect(() => {
     if (chatId) {
       setGroupName(`Group Name ${chatId}`);
@@ -157,7 +186,7 @@ const Groups = () => {
   return (
     <div className="flex h-screen gap-4 bg-background-light">
       {/* Groups List */}
-      <div className="hidden sm:block sm:w-1/3 h-full overflow-auto px-4 pt-4 no-scrollbar bg-[#F4EFE6] border-r border-zinc-300">
+      <div className="hidden sm:flex sm:flex-col sm:w-1/3 h-screen px-4 pt-4 bg-[#F4EFE6] border-r border-zinc-300">
         <div className="relative w-full">
           <div
             className={`absolute left-3 top-5 -translate-y-1/2 text-[#9b988c] ${
@@ -172,7 +201,9 @@ const Groups = () => {
             type="text"
             name="search"
             id="search"
+            value={searchQuery}
             placeholder="Search groups..."
+            onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsActive(true)}
             onBlur={() => setIsActive(false)}
           />
@@ -181,7 +212,7 @@ const Groups = () => {
         <h2 className="uppercase text-xs text-text-light font-medium my-4">
           All Groups
         </h2>
-        <GroupsList myGroups={myGroups?.data?.groups} chatId={chatId} />
+        <GroupsList myGroups={filteredGroups} chatId={chatId} />
       </div>
 
       {/* Group Details */}
@@ -214,7 +245,11 @@ const Groups = () => {
                   </button>
                 </div>
 
-                <div className="w-full flex flex-col border border-zinc-300 rounded-xl bg-white divide-y divide-zinc-300">
+                <div
+                  className={`w-full ${
+                    groupMembers.length <= 5 ? "" : "h-86"
+                  } overflow-y-auto no-scrollbar flex flex-col border border-zinc-300 rounded-xl bg-white divide-y divide-zinc-300`}
+                >
                   {isLoadingRemoveMember
                     ? "Loading..."
                     : groupMembers.map((i) => (
@@ -296,11 +331,13 @@ const Groups = () => {
 };
 
 const GroupsList = ({ myGroups = [] }) => (
-  <div className="flex flex-col gap-2 h-full overflow-auto rounded">
+  <div className="flex flex-col gap-2 h-full flex-1 overflow-y-auto no-scrollbar rounded">
     {myGroups.length > 0 ? (
       myGroups.map((group) => <GroupsListItem key={group._id} group={group} />)
     ) : (
-      <div className="text-center p-4">No groups</div>
+      <div className="flex-1 flex items-center justify-center text-center p-4 text-text-light">
+        No groups
+      </div>
     )}
   </div>
 );
@@ -309,7 +346,7 @@ const GroupsListItem = memo(({ group }) => {
   const { name, avatar, _id } = group;
   return (
     <Link to={`?group=${_id}`}>
-      <div className="flex items-center gap-3 w-full px-3 py-4 rounded-xl hover:bg-[#FBF9F5] cursor-pointer hover:border hover:border-zinc-300 outline-none">
+      <div className="flex items-center gap-3 w-full px-3 py-4 rounded-xl hover:bg-[#FBF9F5] cursor-pointer border border-transparent hover:border-zinc-300 outline-none">
         <AvatarCard avatar={avatar} />
         <div className="flex flex-col items-start justify-center gap-1 w-full">
           <div className="w-full flex items-center justify-between">

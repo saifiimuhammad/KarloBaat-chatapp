@@ -11,6 +11,7 @@ import { Toaster } from "react-hot-toast";
 import { SocketProvider } from "./socket";
 import Header from "./components/layout/Header";
 import EditProfile from "./pages/EditProfile";
+import { useGetMeQuery } from "./redux/api/api";
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Chat = lazy(() => import("./pages/Chat"));
@@ -26,8 +27,10 @@ const MessageManagement = lazy(() => import("./pages/admin/MessageManagement"));
 
 const App = () => {
   const { user, loader } = useSelector((state) => state.auth);
-
+  // const { data, isLoading } = useGetMeQuery();
+  // const user = data?.user;
   const dispatch = useDispatch();
+  // dispatch(userExists(user));
 
   useEffect(() => {
     axios

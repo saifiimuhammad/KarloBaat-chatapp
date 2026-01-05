@@ -272,7 +272,7 @@ const editProfile = TryCatch(async (req, res, next) => {
   }
 
   if (req.file) {
-    const result = await uploadFilesToCloudinary([file]);
+    const result = await uploadFilesToCloudinary([req.file]);
 
     updateData.avatar = {
       public_id: result[0].public_id,

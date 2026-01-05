@@ -1,11 +1,16 @@
 import { useNavigate } from "react-router-dom";
+import { useEditProfileMutation } from "../redux/api/api";
+import { useState, type FC } from "react";
+import { toast } from "react-hot-toast";
+
+type File = {
+  url: string;
+  public_id: string;
+};
 
 interface EditProfileProps {
   user: {
-    avatar: {
-      url: string;
-      public_id: string;
-    };
+    avatar: File;
     name: string;
     username: string;
     bio: string;
@@ -13,10 +18,32 @@ interface EditProfileProps {
   };
 }
 
-const EditProfile = ({ user }) => {
+const EditProfile: FC<EditProfileProps> = ({ user }) => {
   const navigate = useNavigate();
 
-  const handleEditProfile = () => {};
+  const [editProfile, { isLoading }] = useEditProfileMutation();
+
+  // local state
+  const [name, setName] = useState(user.name);
+  const [username, setUsername] = useState(user.username);
+  const [bio, setBio] = useState(user.bio);
+  const [avatar, setAvatar] = useState<Blob | MediaSource | null>(null);
+
+  const handleEditProfile = async () => {
+    try {
+      await editProfile({
+        name,
+        username,
+        bio,
+        avatar,
+      }).unwrap();
+
+      toast.success("Profile updated successfully");
+      navigate(-1);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Update failed");
+    }
+  };
 
   return (
     <div className="w-full h-full text-text bg-background-2 px-32 py-12">
@@ -31,7 +58,7 @@ const EditProfile = ({ user }) => {
         <div className="w-full rounded-xl bg-white flex items-center justify-between p-8 border border-zinc-200">
           <div className="flex items-center justify-center gap-8">
             <img
-              src={user.avatar.url}
+              src={avatar ? URL.createObjectURL(avatar) : user.avatar.url}
               alt="user profile pic"
               className="w-28 h-28 rounded-full object-cover border-4 border-primary"
             />
@@ -44,9 +71,19 @@ const EditProfile = ({ user }) => {
             </div>
           </div>
 
-          <button className="px-5 py-3 rounded-xl font-medium text-lg text-white bg-primary hover:bg-[#516839] transition-colors cursor-pointer">
+          {/* <button className="px-5 py-3 rounded-xl font-medium text-lg text-white bg-primary hover:bg-[#516839] transition-colors cursor-pointer">
             Update Avatar
-          </button>
+          </button> */}
+
+          <label className="px-5 py-3 rounded-xl font-medium text-lg text-white bg-primary hover:bg-[#516839] cursor-pointer">
+            Update Avatar
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => setAvatar(e.target.files?.[0] || null)}
+            />
+          </label>
         </div>
 
         {/* Profile Info Section */}
@@ -63,7 +100,8 @@ const EditProfile = ({ user }) => {
               <input
                 id="name"
                 type="text"
-                defaultValue={user.name}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 border bg-[#f6f8f4] border-zinc-300 rounded-lg focus:outline-none focus:border-primary"
               />
             </div>
@@ -74,7 +112,8 @@ const EditProfile = ({ user }) => {
               <input
                 id="username"
                 type="text"
-                defaultValue={user.username}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 border bg-[#f6f8f4] border-zinc-300 rounded-lg focus:outline-none focus:border-primary"
               />
             </div>
@@ -87,7 +126,8 @@ const EditProfile = ({ user }) => {
               </label>
               <textarea
                 id="bio"
-                defaultValue={user.bio}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
                 placeholder="Tell us a real about yourself..."
                 className="w-full px-4 py-3 border bg-[#f6f8f4] border-zinc-300 rounded-lg focus:outline-none focus:border-primary"
                 rows={4}
@@ -105,10 +145,11 @@ const EditProfile = ({ user }) => {
             Cancel
           </button>
           <button
+            disabled={isLoading}
             onClick={handleEditProfile}
             className="px-5 py-3 rounded-xl font-medium text-lg text-white bg-primary hover:bg-[#516839] transition-colors cursor-pointer"
           >
-            Save Changes
+            {isLoading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>

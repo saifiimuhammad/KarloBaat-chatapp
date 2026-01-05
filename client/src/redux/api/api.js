@@ -9,6 +9,13 @@ const api = createApi({
   }),
   tagTypes: ["Chat", "User", "Message"],
   endpoints: (builder) => ({
+    getMe: builder.query({
+      query: () => ({
+        url: "user/me",
+        credentials: "include",
+      }),
+      providesTags: ["User"],
+    }),
     myChats: builder.query({
       query: () => ({
         url: "chat/my",
@@ -144,11 +151,31 @@ const api = createApi({
       }),
       invalidatesTags: ["Chat"],
     }),
+    editProfile: builder.mutation({
+      query: (data) => {
+        const formData = new FormData();
+
+        if (data.name) formData.append("name", data.name);
+        if (data.username) formData.append("username", data.username);
+        if (data.bio) formData.append("bio", data.bio);
+        if (data.password) formData.append("password", data.password);
+        if (data.avatar) formData.append("avatar", data.avatar);
+
+        return {
+          url: "user/update",
+          method: "PATCH",
+          body: formData,
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
 export default api;
 export const {
+  useGetMeQuery,
   useMyChatsQuery,
   useLazySearchUserQuery,
   useSendFriendRequestMutation,
@@ -165,4 +192,5 @@ export const {
   useAddGroupMembersMutation,
   useDeleteChatMutation,
   useLeaveGroupMutation,
+  useEditProfileMutation,
 } = api;

@@ -44,7 +44,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
       <motion.div
         initial={{ opacity: 0, y: -40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.08 }}
+        transition={{ delay: 0 }}
         className={`
           relative flex items-center gap-4 rounded-xl py-3 px-3 mb-1
           transition-colors

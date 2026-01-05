@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ChatItem from "../shared/ChatItem";
 import { Search } from "lucide-react";
 
@@ -37,9 +37,28 @@ const ChatList: React.FC<ChatListProps> = ({
   handleDeleteChat,
 }) => {
   const [isActive, setIsActive] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  // Debounce the search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery.trim().toLowerCase());
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Filtered chats based on debounced query
+  const filteredChats = useMemo(() => {
+    if (!debouncedQuery) return chats;
+    return chats.filter((chat) =>
+      chat.name.toLowerCase().includes(debouncedQuery)
+    );
+  }, [debouncedQuery, chats]);
 
   return (
-    <div className="">
+    <div className="flex flex-col h-full">
       <div className="p-4">
         <div className="relative w-full">
           <div
@@ -56,6 +75,8 @@ const ChatList: React.FC<ChatListProps> = ({
             name="search"
             id="search"
             placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsActive(true)}
             onBlur={() => setIsActive(false)}
           />
@@ -64,13 +85,16 @@ const ChatList: React.FC<ChatListProps> = ({
           Messages
         </h3>
       </div>
-      <div style={{ width: w }} className="h-full overflow-auto px-2">
-        {chats.length === 0 ? (
+      <div
+        style={{ width: w }}
+        className="flex-1 h-full overflow-y-auto px-2 no-scrollbar"
+      >
+        {filteredChats.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-lg text-text-light">Add friends to chat!</p>
           </div>
         ) : (
-          chats.map((data, index) => {
+          filteredChats.map((data, index) => {
             const { avatar, name, _id, groupChat, members } = data;
 
             const newMessageAlert = newMessagesAlert.find(
