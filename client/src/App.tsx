@@ -1,5 +1,5 @@
 import "./style.css";
-import React, { Suspense, lazy, useEffect } from "react";
+import { type FC, Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectRoute from "./components/auth/ProtectRoute";
 import { LayoutLoader } from "./components/layout/Loaders";
@@ -11,7 +11,8 @@ import { Toaster } from "react-hot-toast";
 import { SocketProvider } from "./socket";
 import Header from "./components/layout/Header";
 import EditProfile from "./pages/EditProfile";
-import { useGetMeQuery } from "./redux/api/api";
+import type { RootState, AppDispatch } from "./redux/store";
+
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Chat = lazy(() => import("./pages/Chat"));
@@ -25,23 +26,36 @@ const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const ChatManagement = lazy(() => import("./pages/admin/ChatManagement"));
 const MessageManagement = lazy(() => import("./pages/admin/MessageManagement"));
 
-const App = () => {
-  const { user, loader } = useSelector((state) => state.auth);
-  // const { data, isLoading } = useGetMeQuery();
-  // const user = data?.user;
-  const dispatch = useDispatch();
-  // dispatch(userExists(user));
+type AvatarFile = {
+  url: string;
+  public_id: string;
+};
+
+interface User {
+  _id: string;
+  avatar: AvatarFile;
+  name: string;
+  username: string;
+  bio: string;
+  createdAt: string;
+}
+
+const App: FC = () => {
+  const { user, loader } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     axios
-      .get(`${server}/api/v1/user/me`, { withCredentials: true })
+      .get(`${server}/api/v1/user/me`, {
+        withCredentials: true,
+      })
       .then(({ data }) => dispatch(userExists(data.user)))
       .catch(() => dispatch(userNotExists()));
-  }, []);
+  }, [dispatch]);
 
-  return loader ? (
-    <LayoutLoader />
-  ) : (
+  if (loader) return <LayoutLoader />;
+
+  return (
     <BrowserRouter>
       <Header />
       <Suspense fallback={<LayoutLoader />}>

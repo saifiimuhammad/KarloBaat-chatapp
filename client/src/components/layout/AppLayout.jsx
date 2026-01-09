@@ -83,8 +83,6 @@ const AppLayout = () => (WrappedComponent) => {
       setOnlineUsers(data);
     }, []);
 
-    console.log("Online users: ", onlineUsers);
-
     const eventHandlers = {
       [NEW_MESSAGE_ALERT]: newMessageAlertListener,
       [NEW_REQUEST]: newRequestListener,
