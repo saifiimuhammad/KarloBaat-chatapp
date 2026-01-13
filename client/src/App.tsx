@@ -1,6 +1,6 @@
 import "./style.css";
 import { type FC, Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import ProtectRoute from "./components/auth/ProtectRoute";
 import { LayoutLoader } from "./components/layout/Loaders";
 import axios from "axios";
@@ -44,6 +44,8 @@ const App: FC = () => {
   const { user, loader } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
 
+  const { pathname } = useLocation();
+
   useEffect(() => {
     axios
       .get(`${server}/api/v1/user/me`, {
@@ -56,8 +58,8 @@ const App: FC = () => {
   if (loader) return <LayoutLoader />;
 
   return (
-    <BrowserRouter>
-      <Header />
+    <>
+      {!pathname.startsWith("/admin") && <Header />}
       <Suspense fallback={<LayoutLoader />}>
         <Routes>
           <Route
@@ -95,7 +97,7 @@ const App: FC = () => {
       </Suspense>
 
       <Toaster position="bottom-center" />
-    </BrowserRouter>
+    </>
   );
 };
 

@@ -1,50 +1,68 @@
-import { useFetchData } from "6pp";
-import { Avatar, Skeleton } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { type GridColDef } from "@mui/x-data-grid";
+import { useFetchData } from "6pp";
+
 import AdminLayout from "../../components/layout/AdminLayout";
 import Table from "../../components/shared/Table";
 import { server } from "../../constants/config";
 import { useErrors } from "../../hooks/hooks";
 import { transformImage } from "../../lib/features";
 
-const columns = [
+/* ================= TYPES ================= */
+
+interface User {
+  _id: string;
+  name: string;
+  username: string;
+  avatar: string;
+  friends: number;
+}
+
+interface TableUser extends User {
+  id: string;
+}
+
+/* ================= COLUMNS ================= */
+
+const columns: GridColDef[] = [
   {
     field: "id",
     headerName: "ID",
-    headerClassName: "table-header",
     width: 200,
   },
   {
     field: "avatar",
     headerName: "Avatar",
-    headerClassName: "table-header",
     width: 150,
     renderCell: (params) => (
-      <Avatar alt={params.row.name} src={params.row.avatar} />
+      <img
+        src={params.value}
+        alt={params.row.name}
+        className="w-10 h-10 rounded-full object-cover"
+      />
     ),
   },
   {
     field: "name",
     headerName: "Name",
-    headerClassName: "table-header",
     width: 200,
   },
   {
     field: "username",
     headerName: "Username",
-    headerClassName: "table-header",
     width: 200,
   },
   {
     field: "friends",
     headerName: "Friends",
-    headerClassName: "table-header",
     width: 150,
   },
 ];
 
-const UserManagement = () => {
-  const [rows, setRows] = useState([]);
+/* ================= COMPONENT ================= */
+
+const UserManagement: React.FC = () => {
+  const [rows, setRows] = useState<TableUser[]>([]);
 
   const { loading, data, error } = useFetchData(
     `${server}/api/v1/admin/users`,
@@ -59,21 +77,21 @@ const UserManagement = () => {
   ]);
 
   useEffect(() => {
-    if (data) {
-      setRows(
-        data?.users.map((i) => ({
-          ...i,
-          id: i._id,
-          avatar: transformImage(i.avatar, 50),
-        }))
-      );
+    if (data?.users) {
+      const mappedRows: TableUser[] = data.users.map((user: User) => ({
+        ...user,
+        id: user._id,
+        avatar: transformImage(user.avatar, 50),
+      }));
+
+      setRows(mappedRows);
     }
   }, [data]);
 
   return (
     <AdminLayout>
       {loading ? (
-        <Skeleton height={"100vh"} />
+        <div className="w-full h-screen animate-pulse rounded-xl bg-[var(--color-accent)]" />
       ) : (
         <Table heading="All Users" columns={columns} rows={rows} />
       )}
