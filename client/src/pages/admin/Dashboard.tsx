@@ -14,12 +14,14 @@ import {
 } from "lucide-react";
 
 import AdminLayout from "../../components/layout/AdminLayout";
-import { DoughnutChart, LineChart } from "../../components/specific/Charts";
+// import { DoughnutChart, LineChart } from "../../components/specific/Charts";
 import { useFetchData } from "6pp";
 import { server } from "../../constants/config";
 import { useErrors } from "../../hooks/hooks";
 import { adminLogout } from "../../redux/thunks/admin";
 import { useDispatch } from "react-redux";
+import MessagesChart from "../../components/charts/MessagesChart";
+import DoughnutChart from "../../components/charts/DoughnutChart";
 
 /* ================= TYPES ================= */
 
@@ -64,16 +66,16 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="h-screen w-full animate-pulse rounded-xl bg-[var(--color-accent)]" />
+        <div className="h-screen w-full animate-pulse rounded-xl bg-accent" />
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-      <main className="">
+      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ================= APP BAR ================= */}
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-white px-8 py-6 border-b border-zinc-200">
+        <div className="col-span-1 lg:col-span-3 flex flex-wrap items-center justify-between gap-4 bg-white px-8 py-6 border-b border-zinc-200">
           <div className="flex items-center justify-start gap-4">
             <h2 className="text-[1.275rem] font-bold">Analytics Overview</h2>
             <span className="inline-flex items-center justify-center gap-1 rounded-full border border-zinc-200 bg-background-2 px-3 py-1 text-[.8rem] text-text-light">
@@ -115,27 +117,10 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= STAT CARDS ================= */}
-        <div className="p-8 flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
+        <div className="grid grid-cols-1 lg:grid-cols-3 col-span-1 lg:col-span-3 gap-6 px-4 sm:px-6 lg:px-8">
+          {/* ================= STAT CARDS ================= */}
+
           <StatCard
-            title="Total Users"
-            value={12842}
-            icon={<User />}
-            percentage={5.2}
-          />
-          <StatCard
-            title="Active Chats"
-            value={432}
-            icon={<Users />}
-            percentage={-4.1}
-          />
-          <StatCard
-            title="Messages Today"
-            value={85291}
-            icon={<MessageSquare />}
-            percentage={60}
-          />
-          {/* <StatCard
             title="Total Users"
             value={stats?.usersCount || 0}
             icon={<User />}
@@ -152,47 +137,30 @@ const Dashboard: React.FC = () => {
             value={stats?.messagesCount || 0}
             icon={<MessageSquare />}
             percentage={60}
-          /> */}
-        </div>
+          />
 
-        {/* ================= CHARTS ================= */}
-        <div className="flex flex-col gap-8 lg:flex-row">
-          <div className="w-full max-w-3xl rounded-xl bg-background-2 p-8">
-            <h2 className="mb-6 text-2xl font-semibold">Last Messages</h2>
-            <LineChart value={stats?.messagesChart || []} />
+          {/* ================= CHARTS ================= */}
+
+          <div className="col-span-1 lg:col-span-2">
+            <MessagesChart data={stats?.messagesChart || []} />
           </div>
-
-          <div className="relative flex w-full max-w-sm items-center justify-center rounded-xl bg-background-2 p-4">
+          <div className="col-span-1">
             <DoughnutChart
-              value={[stats?.singleChatsCount || 0, stats?.groupsCount || 0]}
-              labels={["Single Chat", "Group Chats"]}
+              centerLabel="Chats"
+              data={[
+                {
+                  label: "Single Chats",
+                  value: stats?.singleChatsCount || 0,
+                  color: "#628141",
+                },
+                {
+                  label: "Group Chats",
+                  value: stats?.groupsCount || 0,
+                  color: "#ebd5ab",
+                },
+              ]}
             />
-
-            <div className="absolute inset-0 flex items-center justify-center gap-2">
-              <Users />
-              <span className="text-sm font-semibold">VS</span>
-              <User />
-            </div>
           </div>
-        </div>
-
-        {/* ================= WIDGETS ================= */}
-        <div className="my-8 flex flex-col items-center gap-8 sm:flex-row sm:justify-between">
-          <Widget
-            title="Users"
-            value={stats?.usersCount || 0}
-            icon={<User />}
-          />
-          <Widget
-            title="Chats"
-            value={stats?.totalChatsCount || 0}
-            icon={<Users />}
-          />
-          <Widget
-            title="Messages"
-            value={stats?.messagesCount || 0}
-            icon={<MessageSquare />}
-          />
         </div>
       </main>
     </AdminLayout>
@@ -210,50 +178,25 @@ const StatCard: FC<StatCardProps> = ({ title, value, percentage, icon }) => {
   const isPositive = percentage >= 0;
 
   return (
-    <div className="bg-white rounded-xl border border-zinc-200 p-6 w-full">
-      <div className="flex items-center space-x-4">
-        <div className="bg-green-100 p-3 rounded-full text-green-600">
-          {icon}
-        </div>
-        <div>
-          <p className="text-sm text-gray-500 uppercase">{title}</p>
-          <p className="text-2xl font-bold">{value.toLocaleString()}</p>
-        </div>
+    <div className="col-span-1 w-full bg-white border border-zinc-200 rounded-xl p-8 flex items-center gap-4">
+      <div className="size-12 rounded-full bg-accent flex items-center justify-center text-primary">
+        {icon}
       </div>
-      <div
-        className={`flex items-center mt-2 text-sm font-medium ${
-          isPositive ? "text-green-500" : "text-red-500"
-        }`}
-      >
-        {isPositive ? (
-          <TrendingUp className="mr-1" />
-        ) : (
-          <TrendingDown className="mr-1" />
-        )}
-        <span>{Math.abs(percentage)}%</span>
-      </div>
-    </div>
-  );
-};
-
-interface WidgetProps {
-  title: string;
-  value: number;
-  icon: React.ReactNode;
-}
-
-const Widget: FC<WidgetProps> = ({ title, value, icon }) => {
-  return (
-    <div className="w-80 rounded-2xl bg-color-background-2 p-8">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-primary text-xl font-semibold">
-          {value}
-        </div>
-
-        <div className="flex items-center gap-3 text-sm font-medium">
-          {icon}
-          <span>{title}</span>
-        </div>
+      <div>
+        <p className="text-text-light text-xs font-semibold uppercase tracking-wider">
+          {title}
+        </p>
+        <h3 className="text-2xl font-bold leading-tight">
+          {value.toLocaleString()}
+        </h3>
+        <p
+          className={`text-xs font-medium flex items-center gap-1 mt-1 ${
+            isPositive ? "text-[#07881d]" : "text-[#880707]"
+          }`}
+        >
+          {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+          <span>{Math.abs(percentage)}%</span>
+        </p>
       </div>
     </div>
   );
