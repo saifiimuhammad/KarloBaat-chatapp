@@ -1,71 +1,21 @@
-export const User: mongoose.Model<any, {}, {}, {}, any, any> | mongoose.Model<{
+import mongoose, { Document } from "mongoose";
+interface IAvatar {
+    public_id: string;
+    url: string;
+}
+export interface IUser extends Document {
     name: string;
     bio: string;
     username: string;
     password: string;
-    avatar?: {
-        url: string;
-        public_id: string;
-    } | null;
-} & mongoose.DefaultTimestampProps, {}, {}, {}, mongoose.Document<unknown, {}, {
-    name: string;
-    bio: string;
-    username: string;
-    password: string;
-    avatar?: {
-        url: string;
-        public_id: string;
-    } | null;
-} & mongoose.DefaultTimestampProps, {}, {
-    timestamps: true;
+    avatar: IAvatar;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export declare const User: mongoose.Model<any, {}, {}, {}, any, any> | mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
+    _id: mongoose.Types.ObjectId;
 }> & {
-    name: string;
-    bio: string;
-    username: string;
-    password: string;
-    avatar?: {
-        url: string;
-        public_id: string;
-    } | null;
-} & mongoose.DefaultTimestampProps & {
-    _id: mongoose.Types.ObjectId;
-} & {
     __v: number;
-}, mongoose.Schema<any, mongoose.Model<any, any, any, any, any, any>, {}, {}, {}, {}, {
-    timestamps: true;
-}, {
-    name: string;
-    bio: string;
-    username: string;
-    password: string;
-    avatar?: {
-        url: string;
-        public_id: string;
-    } | null;
-} & mongoose.DefaultTimestampProps, mongoose.Document<unknown, {}, mongoose.FlatRecord<{
-    name: string;
-    bio: string;
-    username: string;
-    password: string;
-    avatar?: {
-        url: string;
-        public_id: string;
-    } | null;
-} & mongoose.DefaultTimestampProps>, {}, mongoose.ResolveSchemaOptions<{
-    timestamps: true;
-}>> & mongoose.FlatRecord<{
-    name: string;
-    bio: string;
-    username: string;
-    password: string;
-    avatar?: {
-        url: string;
-        public_id: string;
-    } | null;
-} & mongoose.DefaultTimestampProps> & {
-    _id: mongoose.Types.ObjectId;
-} & {
-    __v: number;
-}>>;
-import mongoose from "mongoose";
+}, any>;
+export {};
 //# sourceMappingURL=user.d.ts.map

@@ -15,7 +15,7 @@ const createSingleChats = async (numChats) => {
           Chat.create({
             name: faker.lorem.words(2),
             members: [users[i]._id, users[j]._id],
-          })
+          }),
         );
         count++;
       }
@@ -85,7 +85,7 @@ const createMessages = async (numMessages) => {
           chat: randomChat._id,
           sender: randomUser._id,
           content: faker.lorem.sentence(),
-        })
+        }),
       );
     }
 
@@ -119,7 +119,7 @@ const createMessagesInAChat = async (chatId, numMessages) => {
           chat: chat._id,
           sender: randomUser._id,
           content: faker.lorem.sentence(),
-        })
+        }),
       );
     }
 

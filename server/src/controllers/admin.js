@@ -66,7 +66,7 @@ const allUsers = TryCatch(async (req, res, next) => {
         groups,
         friends,
       };
-    })
+    }),
   );
 
   return res.status(200).json({
@@ -98,7 +98,7 @@ const allChats = TryCatch(async (req, res, next) => {
         totalMembers: chat.members.length,
         totalMessages,
       };
-    })
+    }),
   );
 
   return res.status(200).json({
@@ -128,7 +128,7 @@ const allMessages = TryCatch(async (req, res, next) => {
         groupChat: chat.groupChat,
         createdAt,
       };
-    }
+    },
   );
 
   return res.status(200).json({

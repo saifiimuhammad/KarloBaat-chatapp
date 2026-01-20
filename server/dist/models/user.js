@@ -1,7 +1,8 @@
 import mongoose, { Schema, model } from "mongoose";
 import bcrypt from "bcryptjs";
 const { hash } = bcrypt;
-const schema = new Schema({
+// 3. Schema definition
+const userSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -18,7 +19,7 @@ const schema = new Schema({
     password: {
         type: String,
         required: true,
-        select: false,
+        select: false, // will not be returned by default
     },
     avatar: {
         public_id: {
@@ -31,12 +32,15 @@ const schema = new Schema({
         },
     },
 }, {
-    timestamps: true,
+    timestamps: true, // adds createdAt & updatedAt
 });
-schema.pre("save", async function (next) {
+// 4. Pre-save hook for password hashing
+userSchema.pre("save", async function (next) {
     if (!this.isModified("password"))
         return next();
     this.password = await hash(this.password, 10);
+    next();
 });
-export const User = mongoose.models.User || model("User", schema);
+// 5. Export the model
+export const User = mongoose.models.User || model("User", userSchema);
 //# sourceMappingURL=user.js.map

@@ -1,25 +1,26 @@
-import mongoose, { Schema, model, Types } from 'mongoose';
-const schema = new Schema({
+import mongoose, { Schema, model } from "mongoose";
+const chatSchema = new Schema({
     name: {
         type: String,
-        required: true
+        required: true,
     },
     groupChat: {
         type: Boolean,
-        default: false
+        default: false,
     },
     creator: {
-        type: Types.ObjectId,
-        ref: 'User'
+        type: Schema.Types.ObjectId,
+        ref: "User",
     },
     members: [
         {
-            type: Types.ObjectId,
-            ref: 'User'
-        }
-    ]
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+    ],
 }, {
-    timestamps: true
+    timestamps: true,
 });
-export const Chat = mongoose.models.Chat || model('Chat', schema);
+export const Chat = mongoose.models.Chat || model("Chat", chatSchema);
 //# sourceMappingURL=chat.js.map

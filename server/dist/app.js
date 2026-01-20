@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { createServer } from "http";
+import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
 import { corsOptions } from "./constants/config.js";
@@ -19,7 +19,7 @@ import { connectDb } from "./utils/features.js";
 dotenv.config({ path: "./.env" });
 const mongoURI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 3000;
-const envMode = (process.env.NODE_ENV?.trim() || "PRODUCTION");
+const envMode = process.env.NODE_ENV?.trim() || "PRODUCTION";
 const adminSecretKey = process.env.ADMIN_SECRET_KEY || "itsmesaif786";
 // Maps for sockets and online users
 const userSocketIDs = new Map();
