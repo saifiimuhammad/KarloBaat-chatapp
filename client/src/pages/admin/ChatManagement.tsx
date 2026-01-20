@@ -1,23 +1,23 @@
-import React, { useEffect, useState, type FC, type ReactNode } from "react";
+import { useEffect, useState, type FC, type ReactNode } from "react";
 import {
-  Ban,
-  CircleCheck,
+  Archive,
+  MessageSquareText,
+  MessagesSquare,
   Pencil,
   Search,
   Trash2,
-  UserPlus,
   Users,
 } from "lucide-react";
 import AdminLayout from "../../components/layout/AdminLayout";
-import usersData from "../../constants/usersData";
+import chatsData from "../../constants/chatsData";
 
-const UserManagement: React.FC = () => {
+const ChatManagement: FC = () => {
   const [isActive, setIsActive] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "banned">(
-    "all"
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "private" | "groups"
+  >("all");
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -28,59 +28,61 @@ const UserManagement: React.FC = () => {
     };
   }, [search]);
 
-  const filteredUsers = usersData.filter((user) => {
+  const filteredChats = chatsData.filter((chat) => {
+    const searchValue = debouncedSearch.toLowerCase();
+
     const matchesSearch =
-      user.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      user.username.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      user.email.toLowerCase().includes(debouncedSearch.toLowerCase());
+      chat.name.toLowerCase().includes(searchValue) ||
+      chat.members.some((m) => m.toLowerCase().includes(searchValue)) ||
+      (chat.admin?.name.toLowerCase().includes(searchValue) ?? false);
 
-    const getStatusMatch = () => {
-      if (statusFilter === "all") {
-        return true;
-      }
-      if (statusFilter === "active") {
-        return !user.isBlocked;
-      }
-      return user.isBlocked;
-    };
-
-    const matchesStatus = getStatusMatch();
+    const matchesStatus =
+      statusFilter === "all"
+        ? true
+        : statusFilter === "private"
+        ? !chat.isGroupChat
+        : chat.isGroupChat;
 
     return matchesSearch && matchesStatus;
   });
 
   return (
     <AdminLayout>
-      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <main className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* ================= APP BAR ================= */}
-        <div className="col-span-1 lg:col-span-3 w-full bg-white px-8 py-6 border-b border-zinc-200">
+        <div className="col-span-1 lg:col-span-4 w-full bg-white px-8 py-6 border-b border-zinc-200">
           <div className="flex items-start justify-center flex-col">
-            <h2 className="text-[1.275rem] font-bold">User Management</h2>
+            <h2 className="text-[1.275rem] font-bold">Chat Management</h2>
             <p className="text-[.8rem] text-text-light">
-              Manage all users on the Karlobaat platform.
+              Monitor and moderate active conversations.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 col-span-1 lg:col-span-3 gap-6 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 col-span-1 lg:col-span-4 gap-6 px-4 sm:px-6 lg:px-8">
           <StatCard
-            title={"Total Users"}
-            value={12840}
+            title={"Total Chats"}
+            value={8432}
+            icon={<MessagesSquare className="text-primary" />}
+          />
+          <StatCard
+            title={"Active Chats Today"}
+            value={1284}
+            icon={<MessageSquareText className="text-primary" />}
+          />
+          <StatCard
+            title={"New Groups Today"}
+            value={42}
             icon={<Users className="text-primary" />}
           />
           <StatCard
-            title={"New Users This Week"}
-            value={312}
-            icon={<UserPlus className="text-primary" />}
-          />
-          <StatCard
-            title={"Banned Users"}
-            value={86}
-            icon={<Ban className="text-red-800" />}
+            title={"Archived Chats"}
+            value={315}
+            icon={<Archive className="text-primary" />}
           />
 
           {/* ================= TABLE ================= */}
-          <div className="mb-8 col-span-1 lg:col-span-3 rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <div className="mb-8 col-span-1 lg:col-span-4 rounded-xl border border-slate-200 bg-white overflow-hidden">
             <div className="p-4 border-b border-slate-200">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div className="w-full md:max-w-3xl relative">
@@ -97,7 +99,7 @@ const UserManagement: React.FC = () => {
                     type="text"
                     name="search"
                     id="search"
-                    placeholder="Search by name, username, or email..."
+                    placeholder="Search by chat name or member..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onFocus={() => setIsActive(true)}
@@ -107,7 +109,7 @@ const UserManagement: React.FC = () => {
                 {/* Status Filter Buttons */}
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium text-text-light">
-                    Filter by status:
+                    Filter by type:
                   </span>
                   <button
                     onClick={() => setStatusFilter("all")}
@@ -120,24 +122,24 @@ const UserManagement: React.FC = () => {
                     <span>All</span>
                   </button>
                   <button
-                    onClick={() => setStatusFilter("active")}
+                    onClick={() => setStatusFilter("private")}
                     className={`flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-colors ${
-                      statusFilter === "active"
+                      statusFilter === "private"
                         ? "text-primary"
                         : "bg-zinc-100 text-text-light hover:bg-zinc-200"
                     } cursor-pointer`}
                   >
-                    <span>Active</span>
+                    <span>Private</span>
                   </button>
                   <button
-                    onClick={() => setStatusFilter("banned")}
+                    onClick={() => setStatusFilter("groups")}
                     className={`flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium transition-colors ${
-                      statusFilter === "banned"
+                      statusFilter === "groups"
                         ? "text-primary"
                         : "bg-zinc-100 text-text-light hover:bg-zinc-200"
                     } cursor-pointer`}
                   >
-                    <span>Banned</span>
+                    <span>Groups</span>
                   </button>
                 </div>
               </div>
@@ -150,19 +152,20 @@ const UserManagement: React.FC = () => {
                       Avatar
                     </th>
                     <th className="px-6 py-3 text-sm font-semibold uppercase tracking-wider">
-                      Name
+                      Chat Name
+                    </th>
+
+                    <th className="px-6 py-3 text-sm font-semibold uppercase tracking-wider">
+                      Type
                     </th>
                     <th className="px-6 py-3 text-sm font-semibold uppercase tracking-wider">
-                      Username
+                      Members
                     </th>
                     <th className="px-6 py-3 text-sm font-semibold uppercase tracking-wider">
-                      Email
+                      Admin
                     </th>
                     <th className="px-6 py-3 text-sm font-semibold uppercase tracking-wider">
-                      Join Date
-                    </th>
-                    <th className="px-6 py-3 text-sm font-semibold uppercase tracking-wider">
-                      Status
+                      Created Date
                     </th>
                     <th className="px-6 py-3 text-sm font-semibold uppercase tracking-wider text-right">
                       Action
@@ -170,84 +173,85 @@ const UserManagement: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200">
-                  {filteredUsers.map((user) => (
+                  {filteredChats.map((chat) => (
                     <tr
-                      key={user.id}
-                      className="hover:bg-slate-50/50 transition-colors"
+                      key={chat.id}
+                      className="hover:bg-zinc-50 transition-colors"
                     >
                       {/* Avatar */}
                       <td className="px-6 py-4">
-                        <div
-                          className="h-10 w-10 rounded-full bg-cover bg-center border border-slate-200"
-                          data-alt={`User profile avatar of ${user.name}`}
-                          style={{ backgroundImage: `url('${user.avatar}')` }}
-                        ></div>
+                        {Array.isArray(chat.avatar) ? (
+                          <div className="flex -space-x-2">
+                            {chat.avatar.slice(0, 3).map((av, i) => (
+                              <img
+                                key={i}
+                                src={av}
+                                className="h-8 w-8 rounded-full border border-white"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <img
+                            src={chat.avatar}
+                            className="h-10 w-10 rounded-full border"
+                          />
+                        )}
                       </td>
 
                       {/* Name */}
-                      <td className="px-6 py-4 font-semibold text-slate-900 whitespace-nowrap">
-                        {user.name}
-                      </td>
+                      <td className="px-6 py-4 font-semibold">{chat.name}</td>
 
-                      {/* Username */}
-                      <td className="px-6 py-4 text-sm font-medium">
-                        @{user.username}
-                      </td>
-
-                      {/* Email */}
-                      <td className="px-6 py-4 text-sm">{user.email}</td>
-
-                      {/* Join Date */}
+                      {/* Type */}
                       <td className="px-6 py-4 text-sm">
-                        {new Date(user.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "2-digit",
-                          year: "numeric",
-                        })}
+                        {chat.isGroupChat ? "Group" : "Private"}
                       </td>
 
-                      {/* Status */}
+                      {/* Members */}
+                      <td className="px-6 py-4 text-sm">{chat.totalMembers}</td>
+
+                      {/* Admin (GROUP ONLY) */}
                       <td className="px-6 py-4">
-                        {user.isBlocked ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 uppercase">
-                            Banned
-                          </span>
+                        {chat.isGroupChat && chat.admin ? (
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="h-8 w-8 rounded-full border bg-cover bg-center"
+                              style={{
+                                backgroundImage: `url('${chat.admin.avatar}')`,
+                              }}
+                            />
+                            <span className="text-sm font-medium">
+                              {chat.admin.name}
+                            </span>
+                          </div>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 uppercase">
-                            Active
-                          </span>
+                          <span className="text-sm text-text-light">—</span>
                         )}
+                      </td>
+                      {/* Created */}
+                      <td className="px-6 py-4 text-sm">
+                        {new Date(chat.createdAt).toLocaleDateString()}
                       </td>
 
                       {/* Actions */}
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-1">
                           <button
-                            className="p-2 text-text-light hover:text-primary hover:bg-primary/10 rounded-lg transition-all cursor-pointer"
-                            title="Edit User"
+                            className="p-2 hover:text-primary hover:bg-primary/10 rounded-lg"
+                            title="Edit Chat"
                           >
                             <Pencil size={18} />
                           </button>
 
-                          {user.isBlocked ? (
-                            <button
-                              className="p-2 text-text-light hover:text-green-500 hover:bg-green-500/10 rounded-lg transition-all cursor-pointer"
-                              title="Unban User"
-                            >
-                              <CircleCheck size={18} />
-                            </button>
-                          ) : (
-                            <button
-                              className="p-2 text-text-light hover:text-orange-500 hover:bg-orange-500/10 rounded-lg transition-all cursor-pointer"
-                              title="Ban User"
-                            >
-                              <Ban size={18} />
-                            </button>
-                          )}
+                          <button
+                            className="p-2 hover:text-zinc-600 hover:bg-zinc-200 rounded-lg"
+                            title="Archive Chat"
+                          >
+                            <Archive size={18} />
+                          </button>
 
                           <button
-                            className="p-2 text-text-light hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
-                            title="Delete User"
+                            className="p-2 hover:text-red-500 hover:bg-red-500/10 rounded-lg"
+                            title="Delete Chat"
                           >
                             <Trash2 size={18} />
                           </button>
@@ -260,7 +264,7 @@ const UserManagement: React.FC = () => {
             </div>
             <div className="px-6 py-3 border-t border-zinc-200 flex items-center justify-between">
               <span className="text-sm text-text-light">
-                Showing 1 to 4 of 12,840 users
+                Showing 1 to {filteredChats.length} of {chatsData.length} chats
               </span>
               <div className="flex gap-1">
                 <button className="h-8 px-3 rounded-lg border border-zinc-200 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
@@ -307,4 +311,4 @@ const StatCard: FC<StatCardProps> = ({ title, value, icon }) => {
   );
 };
 
-export default UserManagement;
+export default ChatManagement;
