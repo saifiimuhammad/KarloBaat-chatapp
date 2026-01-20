@@ -1,5 +1,6 @@
-export class ErrorHandler extends Error {
-    constructor(message: any, statusCode: any);
-    statusCode: any;
+declare class ErrorHandler extends Error {
+    statusCode: number;
+    constructor(message: string, statusCode: number);
 }
+export { ErrorHandler };
 //# sourceMappingURL=utility.d.ts.map

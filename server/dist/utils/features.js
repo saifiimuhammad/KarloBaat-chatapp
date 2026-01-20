@@ -4,12 +4,18 @@ import mongoose from "mongoose";
 import { v4 as uuid } from "uuid";
 import { getBase64, getSockets } from "../lib/helper.js";
 import { ErrorHandler } from "./utility.js";
-const cookieOptions = {
+/* =======================
+   Cookie Options
+======================= */
+export const cookieOptions = {
     maxAge: 15 * 24 * 60 * 60 * 1000,
     sameSite: "none",
     httpOnly: true,
     secure: true,
 };
+/* =======================
+   DB Connection
+======================= */
 const connectDb = (uri) => {
     mongoose
         .connect(uri, { dbName: "KarloBaat" })
@@ -20,6 +26,9 @@ const connectDb = (uri) => {
         throw err;
     });
 };
+/* =======================
+   Auth Token Sender
+======================= */
 const sendToken = (res, user, code, message) => {
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
     return res.status(code).cookie("karlobaat-token", token, cookieOptions).json({
@@ -28,6 +37,9 @@ const sendToken = (res, user, code, message) => {
         message,
     });
 };
+/* =======================
+   Socket Event Emitter
+======================= */
 const emitEvent = (req, event, users, data) => {
     const io = req.app.get("io");
     const usersSockets = getSockets(users);
@@ -50,8 +62,11 @@ const uploadFilesToCloudinary = async (files = []) => {
         throw new ErrorHandler("Error uploading files to Cloudinary", 500);
     }
 };
+/* =======================
+   Cloudinary Delete
+======================= */
 const deleteFilesFromCloudinary = async (public_ids) => {
     // Delete files from cloudinary
 };
-export { connectDb, cookieOptions, deleteFilesFromCloudinary, emitEvent, sendToken, uploadFilesToCloudinary, };
+export { connectDb, deleteFilesFromCloudinary, emitEvent, sendToken, uploadFilesToCloudinary, };
 //# sourceMappingURL=features.js.map
