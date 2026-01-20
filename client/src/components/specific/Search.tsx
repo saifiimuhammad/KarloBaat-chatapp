@@ -8,7 +8,6 @@ import {
 } from "../../redux/api/api";
 import { setIsSearch } from "../../redux/reducers/misc";
 import UserItem from "../shared/UserItem";
-import { sampleUsers } from "../../constants/sampleData";
 import { Search as SearchIcon } from "lucide-react";
 
 interface User {
@@ -29,18 +28,18 @@ const Search: FC = () => {
 
   const [searchUser] = useLazySearchUserQuery();
   const [sendFriendRequest, isLoadingSendFriendRequest] = useAsyncMutation(
-    useSendFriendRequestMutation
+    useSendFriendRequestMutation,
   );
 
   const search = useInputValidation("");
-  const [users, setUsers] = useState<User[]>(sampleUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [isActive, setIsActive] = useState(false);
 
   const addFriendHandler = useCallback(
     async (id: string) => {
       await sendFriendRequest("Sending friend request...", { userId: id });
     },
-    [sendFriendRequest]
+    [sendFriendRequest],
   );
 
   const handleSearchClose = () => dispatch(setIsSearch(false));

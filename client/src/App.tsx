@@ -1,6 +1,6 @@
 import "./style.css";
 import { type FC, Suspense, lazy, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import ProtectRoute from "./components/auth/ProtectRoute";
 import { LayoutLoader } from "./components/layout/Loaders";
 import axios from "axios";
@@ -18,7 +18,6 @@ const Login = lazy(() => import("./pages/Login"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Groups = lazy(() => import("./pages/Groups"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const Landing = lazy(() => import("./pages/Landing"));
 
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -46,6 +45,8 @@ const App: FC = () => {
 
   const { pathname } = useLocation();
 
+  const hideHeader = /^\/(admin|welcome|login|not-found)/.test(pathname);
+
   useEffect(() => {
     axios
       .get(`${server}/api/v1/user/me`, {
@@ -59,7 +60,7 @@ const App: FC = () => {
 
   return (
     <>
-      {!pathname.startsWith("/admin") && <Header />}
+      {!hideHeader && <Header />}
       <Suspense fallback={<LayoutLoader />}>
         <Routes>
           <Route
@@ -90,9 +91,8 @@ const App: FC = () => {
           <Route path="/admin/chats" element={<ChatManagement />} />
           <Route path="/admin/messages" element={<MessageManagement />} />
 
-          <Route path="/welcome" element={<Landing />} />
-
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/not-found" replace />} />
+          <Route path="/not-found" element={<NotFound />} />
         </Routes>
       </Suspense>
 

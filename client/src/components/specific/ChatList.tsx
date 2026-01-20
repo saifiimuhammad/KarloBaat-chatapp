@@ -24,7 +24,7 @@ interface ChatListProps {
   handleDeleteChat: (
     e: React.MouseEvent,
     id: string,
-    isGroupChat: boolean
+    isGroupChat: boolean,
   ) => void;
 }
 
@@ -53,7 +53,7 @@ const ChatList: React.FC<ChatListProps> = ({
   const filteredChats = useMemo(() => {
     if (!debouncedQuery) return chats;
     return chats.filter((chat) =>
-      chat.name.toLowerCase().includes(debouncedQuery)
+      chat.name.toLowerCase().includes(debouncedQuery),
     );
   }, [debouncedQuery, chats]);
 
@@ -98,11 +98,11 @@ const ChatList: React.FC<ChatListProps> = ({
             const { avatar, name, _id, groupChat, members } = data;
 
             const newMessageAlert = newMessagesAlert.find(
-              (alert) => alert.chatId === _id
+              (alert) => alert.chatId === _id,
             );
 
             const isOnline = members?.some((member) =>
-              onlineUsers.includes(member)
+              onlineUsers.includes(member),
             );
 
             return (
