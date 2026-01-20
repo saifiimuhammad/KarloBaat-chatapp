@@ -1,68 +1,39 @@
-import mongoose, { Schema, model, Document } from "mongoose";
+import mongoose, { Schema, model, Model } from "mongoose";
 import bcrypt from "bcryptjs";
 
 const { hash } = bcrypt;
 
-// 1. Interface for avatar
-interface IAvatar {
+type AvatarType = {
   public_id: string;
   url: string;
-}
+};
 
-// 2. Interface for User document
-export interface IUser extends Document {
+export interface IUser {
   name: string;
   bio: string;
   username: string;
   password: string;
-  avatar: IAvatar;
-  createdAt: Date;
-  updatedAt: Date;
+  avatar: AvatarType;
 }
 
-// 3. Schema definition
-const userSchema = new Schema<IUser>(
+const schema = new Schema<IUser>(
   {
-    name: {
-      type: String,
-      required: true,
-    },
-    bio: {
-      type: String,
-      required: true,
-    },
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-      select: false, // will not be returned by default
-    },
+    name: { type: String, required: true },
+    bio: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true, select: false },
     avatar: {
-      public_id: {
-        type: String,
-        required: true,
-      },
-      url: {
-        type: String,
-        required: true,
-      },
+      public_id: { type: String, required: true },
+      url: { type: String, required: true },
     },
   },
-  {
-    timestamps: true, // adds createdAt & updatedAt
-  }
+  { timestamps: true },
 );
 
-// 4. Pre-save hook for password hashing
-userSchema.pre<IUser>("save", async function (next) {
+schema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await hash(this.password, 10);
-  next();
 });
 
-// 5. Export the model
-export const User = mongoose.models.User || model<IUser>("User", userSchema);
+export const User: Model<IUser> =
+  mongoose.models.User || model<IUser>("User", schema);

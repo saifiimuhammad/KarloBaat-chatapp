@@ -1,4 +1,18 @@
-export function isAuthenticated(req: any, res: any, next: any): any;
-export function adminOnly(req: any, res: any, next: any): any;
-export function socketAuthenticator(err: any, socket: any, next: any): Promise<any>;
+import type { Request, Response, NextFunction } from "express";
+import type { Socket, ExtendedError } from "socket.io";
+import { type IUser } from "../models/user.js";
+import type { IncomingMessage } from "node:http";
+interface AuthRequest extends Request {
+    user?: string;
+}
+interface AuthSocket extends Socket {
+    user?: IUser;
+    request: IncomingMessage & {
+        cookies?: Record<string, string>;
+    };
+}
+declare const isAuthenticated: (req: AuthRequest, _res: Response, next: NextFunction) => void;
+declare const adminOnly: (req: Request, _res: Response, next: NextFunction) => void;
+declare const socketAuthenticator: (err: ExtendedError | undefined, socket: AuthSocket, next: (err?: ExtendedError) => void) => void;
+export { isAuthenticated, adminOnly, socketAuthenticator };
 //# sourceMappingURL=auth.d.ts.map

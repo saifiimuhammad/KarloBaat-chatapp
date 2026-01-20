@@ -1,21 +1,15 @@
-import mongoose, { Document } from "mongoose";
-interface IAvatar {
+import { Model } from "mongoose";
+type AvatarType = {
     public_id: string;
     url: string;
-}
-export interface IUser extends Document {
+};
+export interface IUser {
     name: string;
     bio: string;
     username: string;
     password: string;
-    avatar: IAvatar;
-    createdAt: Date;
-    updatedAt: Date;
+    avatar: AvatarType;
 }
-export declare const User: mongoose.Model<any, {}, {}, {}, any, any> | mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
-    _id: mongoose.Types.ObjectId;
-}> & {
-    __v: number;
-}, any>;
+export declare const User: Model<IUser>;
 export {};
 //# sourceMappingURL=user.d.ts.map

@@ -1,1 +1,1 @@
-{"version":3,"file":"multer.d.ts","sourceRoot":"","sources":["../../src/middlewares/multer.js"],"names":[],"mappings":"AAQA,wKAAmD;AAEnD,6KAAyD"}
+{"version":3,"file":"multer.d.ts","sourceRoot":"","sources":["../../src/middlewares/multer.ts"],"names":[],"mappings":"AAQA,QAAA,MAAM,YAAY,8IAAgC,CAAC;AAEnD,QAAA,MAAM,iBAAiB,8IAAiC,CAAC;AAEzD,OAAO,EAAE,YAAY,EAAE,iBAAiB,EAAE,CAAC"}
