@@ -1,0 +1,12 @@
+export const addMembers: (req: any, res: any, next: any) => Promise<void>;
+export const deleteChat: (req: any, res: any, next: any) => Promise<void>;
+export const getChatDetails: (req: any, res: any, next: any) => Promise<void>;
+export const getMessages: (req: any, res: any, next: any) => Promise<void>;
+export const getMyChats: (req: any, res: any, next: any) => Promise<void>;
+export const getMyGroups: (req: any, res: any, next: any) => Promise<void>;
+export const leaveGroup: (req: any, res: any, next: any) => Promise<void>;
+export const newGroupChat: (req: any, res: any, next: any) => Promise<void>;
+export const removeMember: (req: any, res: any, next: any) => Promise<void>;
+export const renameGroup: (req: any, res: any, next: any) => Promise<void>;
+export const sendAttachments: (req: any, res: any, next: any) => Promise<void>;
+//# sourceMappingURL=chat.d.ts.map

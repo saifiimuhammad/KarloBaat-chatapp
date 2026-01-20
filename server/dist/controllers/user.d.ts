@@ -1,0 +1,12 @@
+export const acceptFriendRequest: (req: any, res: any, next: any) => Promise<void>;
+export const getAllNotifications: (req: any, res: any, next: any) => Promise<void>;
+export const getMyFriends: (req: any, res: any, next: any) => Promise<void>;
+export const getMyProfile: (req: any, res: any, next: any) => Promise<void>;
+export const login: (req: any, res: any, next: any) => Promise<void>;
+export const logout: (req: any, res: any, next: any) => Promise<void>;
+export const newUser: (req: any, res: any, next: any) => Promise<void>;
+export const searchUser: (req: any, res: any, next: any) => Promise<void>;
+export const sendFriendRequest: (req: any, res: any, next: any) => Promise<void>;
+export const fetchUserDetails: (req: any, res: any, next: any) => Promise<void>;
+export const editProfile: (req: any, res: any, next: any) => Promise<void>;
+//# sourceMappingURL=user.d.ts.map
