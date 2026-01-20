@@ -16,6 +16,10 @@ export interface IUser {
   avatar: AvatarType;
 }
 
+export interface IUserWithId extends IUser {
+  _id: string; // new property
+}
+
 const schema = new Schema<IUser>(
   {
     name: { type: String, required: true },

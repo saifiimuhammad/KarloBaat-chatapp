@@ -1,3 +1,4 @@
-export default app;
-declare const app: import("express-serve-static-core").Router;
+import { Router } from "express";
+declare const router: Router;
+export default router;
 //# sourceMappingURL=chat.d.ts.map

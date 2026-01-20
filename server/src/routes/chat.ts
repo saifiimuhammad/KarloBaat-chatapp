@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import { isAuthenticated } from "../middlewares/auth.js";
 import {
   newGroupChat,
@@ -24,35 +24,36 @@ import {
   validateHandler,
 } from "../lib/validators.js";
 
-const app = express.Router();
+const router: Router = express.Router();
 
 // User must be logged in to access below routes
+router.use(isAuthenticated);
 
-app.use(isAuthenticated);
-
-app.post("/new", newGroupValidator(), validateHandler, newGroupChat);
-app.get("/my", getMyChats);
-app.get("/my/groups", getMyGroups);
-app.put("/addmembers", addMemberValidator(), validateHandler, addMembers);
-app.put(
+router.post("/new", newGroupValidator(), validateHandler, newGroupChat);
+router.get("/my", getMyChats);
+router.get("/my/groups", getMyGroups);
+router.put("/addmembers", addMemberValidator(), validateHandler, addMembers);
+router.put(
   "/removemember",
   removeMemberValidator(),
   validateHandler,
   removeMember
 );
-app.delete("/leave/:id", chatIdValidator(), validateHandler, leaveGroup);
-app.post(
+router.delete("/leave/:id", chatIdValidator(), validateHandler, leaveGroup);
+
+router.post(
   "/message",
   attachmentsMulter,
   sendAttachementsValidator(),
   validateHandler,
   sendAttachments
 ); // Send Attachments
-app.get("/message/:id", chatIdValidator(), validateHandler, getMessages); // Get Messages
-app
+router.get("/message/:id", chatIdValidator(), validateHandler, getMessages); // Get Messages
+
+router
   .route("/:id")
   .get(chatIdValidator(), validateHandler, getChatDetails)
   .put(renameValidator(), validateHandler, renameGroup)
   .delete(chatIdValidator(), validateHandler, deleteChat); // Get Chat details, Rename, Remove
 
-export default app;
+export default router;

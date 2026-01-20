@@ -1,12 +1,18 @@
-export const acceptFriendRequest: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getAllNotifications: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getMyFriends: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getMyProfile: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const login: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const logout: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const newUser: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const searchUser: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const sendFriendRequest: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const fetchUserDetails: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const editProfile: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
+import { Request, Response, NextFunction } from "express";
+export interface AuthenticatedRequest extends Request {
+    user: string;
+    file?: Express.Multer.File;
+}
+declare const newUser: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const login: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getMyProfile: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const logout: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const searchUser: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const sendFriendRequest: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const acceptFriendRequest: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getAllNotifications: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getMyFriends: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const fetchUserDetails: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const editProfile: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export { acceptFriendRequest, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, fetchUserDetails, editProfile, };
 //# sourceMappingURL=user.d.ts.map

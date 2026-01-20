@@ -3,20 +3,19 @@ import { login, newUser, getMyProfile, logout, searchUser, sendFriendRequest, ac
 import { singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import { acceptRequestValidator, loginValidator, registerValidator, sendRequestValidator, validateHandler, } from "../lib/validators.js";
-const app = express.Router();
-// http://localhost:3000/user
-app.post("/new", singleAvatar, registerValidator(), validateHandler, newUser);
-app.post("/login", loginValidator(), validateHandler, login);
-// User must be login to access below routes
-app.use(isAuthenticated);
-app.get("/me", getMyProfile);
-app.get("/logout", logout);
-app.get("/search", searchUser);
-app.put("/sendrequest", sendRequestValidator(), validateHandler, sendFriendRequest);
-app.put("/acceptrequest", acceptRequestValidator(), validateHandler, acceptFriendRequest);
-app.get("/notifications", getAllNotifications);
-app.get("/friends", getMyFriends);
-app.get("/fetch/:id", fetchUserDetails);
-app.patch("/update", singleAvatar, editProfile);
-export default app;
+const router = express.Router();
+router.post("/new", singleAvatar, registerValidator(), validateHandler, newUser);
+router.post("/login", loginValidator(), validateHandler, login);
+// User must be logged in to access below routes
+router.use(isAuthenticated);
+router.get("/me", getMyProfile);
+router.get("/logout", logout);
+router.get("/search", searchUser);
+router.put("/sendrequest", sendRequestValidator(), validateHandler, sendFriendRequest);
+router.put("/acceptrequest", acceptRequestValidator(), validateHandler, acceptFriendRequest);
+router.get("/notifications", getAllNotifications);
+router.get("/friends", getMyFriends);
+router.get("/fetch/:id", fetchUserDetails);
+router.patch("/update", singleAvatar, editProfile);
+export default router;
 //# sourceMappingURL=user.js.map

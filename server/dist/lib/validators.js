@@ -1,5 +1,6 @@
-import { body, param, validationResult } from "express-validator";
+import { body, param, validationResult, } from "express-validator";
 import { ErrorHandler } from "../utils/utility.js";
+/* Middleware to handle validation errors */
 const validateHandler = (req, res, next) => {
     const errors = validationResult(req);
     const errorMessages = errors
@@ -12,6 +13,7 @@ const validateHandler = (req, res, next) => {
     else
         next(new ErrorHandler(errorMessages, 400));
 };
+/* Validators */
 const registerValidator = () => [
     body("name", "Please Enter Name").notEmpty(),
     body("username", "Please Enter Username").notEmpty(),
@@ -45,7 +47,9 @@ const removeMemberValidator = () => [
 const sendAttachementsValidator = () => [
     body("chatId", "Please Enter Chat ID").notEmpty(),
 ];
-const chatIdValidator = () => [param("id", "Please Enter Chat ID").notEmpty()];
+const chatIdValidator = () => [
+    param("id", "Please Enter Chat ID").notEmpty(),
+];
 const renameValidator = () => [
     param("id", "Please Enter Chat ID").notEmpty(),
     body("name", "Please Enter New Name").notEmpty(),
@@ -64,5 +68,6 @@ const acceptRequestValidator = () => [
 const adminLoginValidator = () => [
     body("secretKey", "Please Enter Secret Key").notEmpty(),
 ];
+/* Export all validators and handler */
 export { registerValidator, validateHandler, loginValidator, newGroupValidator, addMemberValidator, removeMemberValidator, sendAttachementsValidator, chatIdValidator, renameValidator, sendRequestValidator, acceptRequestValidator, adminLoginValidator, };
 //# sourceMappingURL=validators.js.map

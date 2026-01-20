@@ -1,7 +1,14 @@
-import { body, param, validationResult } from "express-validator";
+import {
+  body,
+  param,
+  validationResult,
+  ValidationChain,
+} from "express-validator";
+import type { Request, Response, NextFunction } from "express";
 import { ErrorHandler } from "../utils/utility.js";
 
-const validateHandler = (req, res, next) => {
+/* Middleware to handle validation errors */
+const validateHandler = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
 
   const errorMessages = errors
@@ -10,23 +17,26 @@ const validateHandler = (req, res, next) => {
     .join(",");
 
   console.log(errorMessages);
+
   if (errors.isEmpty()) return next();
   else next(new ErrorHandler(errorMessages, 400));
 };
 
-const registerValidator = () => [
+/* Validators */
+
+const registerValidator = (): ValidationChain[] => [
   body("name", "Please Enter Name").notEmpty(),
   body("username", "Please Enter Username").notEmpty(),
   body("bio", "Please Enter Bio").notEmpty(),
   body("password", "Please Enter Password").notEmpty(),
 ];
 
-const loginValidator = () => [
+const loginValidator = (): ValidationChain[] => [
   body("username", "Please Enter Username").notEmpty(),
   body("password", "Please Enter Password").notEmpty(),
 ];
 
-const newGroupValidator = () => [
+const newGroupValidator = (): ValidationChain[] => [
   body("name", "Please Enter Name").notEmpty(),
   body("members")
     .notEmpty()
@@ -35,7 +45,7 @@ const newGroupValidator = () => [
     .withMessage("Members must be between 2-100"),
 ];
 
-const addMemberValidator = () => [
+const addMemberValidator = (): ValidationChain[] => [
   body("chatId", "Please Enter Chat ID").notEmpty(),
   body("members")
     .notEmpty()
@@ -44,27 +54,29 @@ const addMemberValidator = () => [
     .withMessage("Members must be between 1-97"),
 ];
 
-const removeMemberValidator = () => [
+const removeMemberValidator = (): ValidationChain[] => [
   body("chatId", "Please Enter Chat ID").notEmpty(),
   body("userId", "Please Enter User ID").notEmpty(),
 ];
 
-const sendAttachementsValidator = () => [
+const sendAttachementsValidator = (): ValidationChain[] => [
   body("chatId", "Please Enter Chat ID").notEmpty(),
 ];
 
-const chatIdValidator = () => [param("id", "Please Enter Chat ID").notEmpty()];
+const chatIdValidator = (): ValidationChain[] => [
+  param("id", "Please Enter Chat ID").notEmpty(),
+];
 
-const renameValidator = () => [
+const renameValidator = (): ValidationChain[] => [
   param("id", "Please Enter Chat ID").notEmpty(),
   body("name", "Please Enter New Name").notEmpty(),
 ];
 
-const sendRequestValidator = () => [
+const sendRequestValidator = (): ValidationChain[] => [
   body("userId", "Please Enter User ID").notEmpty(),
 ];
 
-const acceptRequestValidator = () => [
+const acceptRequestValidator = (): ValidationChain[] => [
   body("requestId", "Please Enter Request ID").notEmpty(),
   body("accept")
     .notEmpty()
@@ -73,10 +85,11 @@ const acceptRequestValidator = () => [
     .withMessage("Accept must be boolean"),
 ];
 
-const adminLoginValidator = () => [
+const adminLoginValidator = (): ValidationChain[] => [
   body("secretKey", "Please Enter Secret Key").notEmpty(),
 ];
 
+/* Export all validators and handler */
 export {
   registerValidator,
   validateHandler,

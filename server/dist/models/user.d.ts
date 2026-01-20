@@ -10,6 +10,9 @@ export interface IUser {
     password: string;
     avatar: AvatarType;
 }
+export interface IUserWithId extends IUser {
+    _id: string;
+}
 export declare const User: Model<IUser>;
 export {};
 //# sourceMappingURL=user.d.ts.map

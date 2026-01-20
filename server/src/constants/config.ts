@@ -6,13 +6,12 @@ const corsOptions = {
     "http://192.168.0.103:5173",
     "*",
     process.env.CLIENT_URL,
-  ],
+  ] as (string | undefined)[], // explicitly type array items
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true,
 };
 
 const KARLOBAAT_TOKEN = "karlobaat-token";
-
 const KARLOBAAT_ADMIN_TOKEN = "karlobaat-admin-token";
 
 export { corsOptions, KARLOBAAT_TOKEN, KARLOBAAT_ADMIN_TOKEN };

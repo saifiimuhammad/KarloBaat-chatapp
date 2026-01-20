@@ -1,8 +1,9 @@
-export namespace corsOptions {
-    let origin: (string | undefined)[];
-    let methods: string[];
-    let credentials: boolean;
-}
-export const KARLOBAAT_TOKEN: "karlobaat-token";
-export const KARLOBAAT_ADMIN_TOKEN: "karlobaat-admin-token";
+declare const corsOptions: {
+    origin: (string | undefined)[];
+    methods: string[];
+    credentials: boolean;
+};
+declare const KARLOBAAT_TOKEN = "karlobaat-token";
+declare const KARLOBAAT_ADMIN_TOKEN = "karlobaat-admin-token";
+export { corsOptions, KARLOBAAT_TOKEN, KARLOBAAT_ADMIN_TOKEN };
 //# sourceMappingURL=config.d.ts.map

@@ -3,92 +3,74 @@ import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
 import { getOtherMembers } from "../lib/helper.js";
 import { TryCatch } from "../middlewares/error.js";
 import { Chat } from "../models/chat.js";
-import { Request } from "../models/request.js";
+import { Request as FriendRequest } from "../models/request.js";
 import { User } from "../models/user.js";
 import { cookieOptions, emitEvent, sendToken, uploadFilesToCloudinary, } from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
-const { compare } = bcrypt;
-// Creates new user, save it to database and in cookie
+// --- NEW USER ---
 const newUser = TryCatch(async (req, res, next) => {
     const { name, username, password, bio } = req.body;
     const file = req.file;
     if (!file)
         return next(new ErrorHandler("Please upload avatar", 400));
     const result = await uploadFilesToCloudinary([file]);
+    if (!result[0])
+        return next(new ErrorHandler("Avatar upload failed", 500));
     const avatar = {
         public_id: result[0].public_id,
         url: result[0].url,
     };
-    const user = await User.create({
-        name,
-        username,
-        password,
-        bio,
-        avatar,
-    });
-    sendToken(res, user, 201, "User Created!");
+    const user = await User.create({ name, username, password, bio, avatar });
+    sendToken(res, { ...user.toObject(), _id: user._id.toString() }, 201, "User Created!");
 });
-// Check the login user
+// --- LOGIN ---
 const login = TryCatch(async (req, res, next) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username }).select("+password");
     if (!user)
         return next(new ErrorHandler("Invalid Username or Password", 404));
-    const isPasswordMatch = await compare(password, user.password);
-    if (!isPasswordMatch)
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
         return next(new ErrorHandler("Invalid Username or Password", 404));
-    sendToken(res, user, 200, `Welcome back, ${user.name}`);
+    sendToken(res, { ...user.toObject(), _id: user._id.toString() }, 200, `Welcome back, ${user.name}`);
 });
-// User can view his/her profile
+// --- GET PROFILE ---
 const getMyProfile = TryCatch(async (req, res, next) => {
     const user = await User.findById(req.user);
     if (!user)
         return next(new ErrorHandler("User not found", 404));
-    res.status(200).json({
-        success: true,
-        user,
-    });
+    res.status(200).json({ success: true, user });
 });
+// --- LOGOUT ---
 const logout = TryCatch(async (req, res) => {
-    return res
+    res
         .status(200)
-        .cookie("karlobaat-token", "", {
-        ...cookieOptions,
-        maxAge: 0,
-    })
-        .json({
-        success: true,
-        message: "Logged out successfully",
-    });
+        .cookie("karlobaat-token", "", { ...cookieOptions, maxAge: 0 })
+        .json({ success: true, message: "Logged out successfully" });
 });
+// --- SEARCH USERS ---
 const searchUser = TryCatch(async (req, res) => {
-    const { name } = req.query;
-    // All my chats
+    const name = req.query.name || "";
     const myChats = await Chat.find({
         groupChat: false,
         members: req.user,
     });
-    // Extracted all users from my chats means friends and people I have chatted with
-    const allUsersFromMyChats = myChats.map((chat) => chat.members).flat();
-    // Finding all users except me and my friends
+    const allUsersFromMyChats = myChats.flatMap((chat) => chat.members.map((m) => m.toString()));
     const allUsersExceptMeAndFriends = await User.find({
         _id: { $nin: allUsersFromMyChats },
         name: { $regex: name, $options: "i" },
     });
-    // Modifying the response
     const users = allUsersExceptMeAndFriends.map(({ _id, name, avatar }) => ({
-        _id,
+        _id: _id.toString(),
         name,
-        avatar: avatar.url,
+        avatar: avatar?.url,
     }));
-    return res.status(200).json({
-        success: true,
-        users,
-    });
+    res.status(200).json({ success: true, users });
 });
+// --- SEND FRIEND REQUEST ---
 const sendFriendRequest = TryCatch(async (req, res, next) => {
     const { userId } = req.body;
-    const request = await Request.findOne({
+    const request = await FriendRequest.findOne({
         $or: [
             { sender: req.user, reciever: userId },
             { sender: userId, reciever: req.user },
@@ -96,33 +78,33 @@ const sendFriendRequest = TryCatch(async (req, res, next) => {
     });
     if (request)
         return next(new ErrorHandler("Request already sent", 400));
-    await Request.create({
+    await FriendRequest.create({
         sender: req.user,
         reciever: userId,
     });
-    emitEvent(req, NEW_REQUEST, [userId]);
-    return res.status(200).json({
-        success: true,
-        message: "Friend Request Sent",
-    });
+    emitEvent(req, NEW_REQUEST, [userId], null);
+    res.status(200).json({ success: true, message: "Friend Request Sent" });
 });
+// --- ACCEPT FRIEND REQUEST ---
 const acceptFriendRequest = TryCatch(async (req, res, next) => {
     const { requestId, accept } = req.body;
-    const request = await Request.findById(requestId)
+    const request = await FriendRequest.findById(requestId)
         .populate("sender", "name")
         .populate("reciever", "name");
     if (!request)
         return next(new ErrorHandler("Request not found", 404));
-    if (request.reciever._id.toString() !== req.user.toString())
-        return next(new ErrorHandler("You are not authorized to accept this request", 401));
+    if (request.reciever._id.toString() !== req.user)
+        return next(new ErrorHandler("Not authorized to accept this request", 401));
     if (!accept) {
         await request.deleteOne();
-        return res.status(200).json({
-            success: true,
-            message: "Friend Request Rejected",
-        });
+        return res
+            .status(200)
+            .json({ success: true, message: "Friend Request Rejected" });
     }
-    const members = [request.sender._id, request.reciever._id];
+    const members = [
+        request.sender._id.toString(),
+        request.reciever._id.toString(),
+    ];
     await Promise.all([
         Chat.create({
             members,
@@ -130,76 +112,68 @@ const acceptFriendRequest = TryCatch(async (req, res, next) => {
         }),
         request.deleteOne(),
     ]);
-    emitEvent(req, REFETCH_CHATS, members);
-    return res.status(200).json({
+    emitEvent(req, REFETCH_CHATS, members, null);
+    res.status(200).json({
         success: true,
         message: "Friend Request Accepted",
         senderId: request.sender._id,
     });
 });
-const getAllNotifications = TryCatch(async (req, res, next) => {
-    const requests = await Request.find({ reciever: req.user }).populate("sender", "name avatar");
+// --- GET NOTIFICATIONS ---
+const getAllNotifications = TryCatch(async (req, res) => {
+    const requests = await FriendRequest.find({
+        reciever: req.user,
+    }).populate("sender", "name avatar");
     const allRequests = requests.map(({ _id, sender }) => ({
-        _id,
+        _id: _id.toString(),
         sender: {
-            _id: sender._id,
+            _id: sender._id.toString(),
             name: sender.name,
-            avatar: sender.avatar.url,
+            avatar: sender.avatar?.url,
         },
     }));
-    return res.status(200).json({
-        success: true,
-        requests: allRequests,
-    });
+    res.status(200).json({ success: true, requests: allRequests });
 });
+// --- GET FRIENDS ---
 const getMyFriends = TryCatch(async (req, res, next) => {
     const chatId = req.query.chatId;
     const chats = await Chat.find({
         members: req.user,
         groupChat: false,
     }).populate("members", "name avatar");
-    const friends = chats.map(({ members }) => {
+    const friends = chats
+        .map(({ members }) => {
         const otherUser = getOtherMembers(members, req.user);
+        if (!otherUser)
+            return null;
         return {
             _id: otherUser._id,
             name: otherUser.name,
-            avatar: otherUser.avatar.url,
+            avatar: otherUser.avatar?.url,
         };
-    });
-    if (!friends)
+    })
+        .filter(Boolean);
+    if (!friends.length)
         return next(new ErrorHandler("No friends found", 404));
     if (chatId) {
         const chat = await Chat.findById(chatId).populate("members", "name avatar");
-        const availableFriends = friends.filter((friend) => !chat.members.includes(friend._id));
-        return res.status(200).json({
-            success: true,
-            friends: availableFriends,
-        });
+        const availableFriends = friends.filter((friend) => !chat?.members.some((m) => m._id.toString() === friend._id));
+        return res.status(200).json({ success: true, friends: availableFriends });
     }
-    else {
-        return res.status(200).json({
-            success: true,
-            friends,
-        });
-    }
+    res.status(200).json({ success: true, friends });
 });
+// --- FETCH USER DETAILS ---
 const fetchUserDetails = TryCatch(async (req, res, next) => {
-    console.log("running func 2");
     const userId = req.params.id;
-    console.log(userId);
     const user = await User.findById(userId);
-    console.log(user);
     if (!user)
         return next(new ErrorHandler("User not found", 404));
-    res.status(200).json({
-        success: true,
-        user,
-    });
+    res.status(200).json({ success: true, user });
 });
+// --- EDIT PROFILE ---
 const editProfile = TryCatch(async (req, res, next) => {
     const userId = req.user;
     const { name, username, password, bio } = req.body;
-    // Build update object safely
     const updateData = {};
     if (name)
         updateData.name = name.trim();
@@ -207,32 +181,27 @@ const editProfile = TryCatch(async (req, res, next) => {
         updateData.username = username.trim().toLowerCase();
     if (bio)
         updateData.bio = bio.trim();
-    // Handle password update
-    if (password) {
-        if (password.length < 8) {
-            return next(new ErrorHandler("Password must be at least 8 characters long", 400));
-        }
+    if (password)
         updateData.password = await bcrypt.hash(password, 12);
-    }
     if (req.file) {
-        const result = await uploadFilesToCloudinary([req.file]);
-        updateData.avatar = {
-            public_id: result[0].public_id,
-            url: result[0].url,
-        };
+        const result = await uploadFilesToCloudinary([
+            req.file,
+        ]);
+        if (result[0])
+            updateData.avatar = {
+                public_id: result[0].public_id,
+                url: result[0].url,
+            };
     }
-    // Prevent empty updates
-    if (Object.keys(updateData).length === 0) {
+    if (!Object.keys(updateData).length)
         return next(new ErrorHandler("Nothing to update", 400));
-    }
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
         new: true,
         runValidators: true,
         select: "-password",
     });
-    if (!updatedUser) {
+    if (!updatedUser)
         return next(new ErrorHandler("User not found", 404));
-    }
     res.status(200).json({
         success: true,
         message: "Profile updated successfully",

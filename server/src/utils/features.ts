@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import type { Request, Response } from "express";
 import { getBase64, getSockets } from "../lib/helper.js";
 import { ErrorHandler } from "./utility.js";
-
+import { IUserWithId } from "../models/user.js";
 /* =======================
    Cookie Options
 ======================= */
@@ -38,7 +38,7 @@ const connectDb = (uri: string): void => {
 
 const sendToken = (
   res: Response,
-  user: { _id: string },
+  user: IUserWithId,
   code: number,
   message: string,
 ): Response => {

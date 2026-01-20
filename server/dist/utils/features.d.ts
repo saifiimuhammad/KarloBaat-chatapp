@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { IUserWithId } from "../models/user.js";
 export declare const cookieOptions: {
     maxAge: number;
     sameSite: "none";
@@ -6,9 +7,7 @@ export declare const cookieOptions: {
     secure: boolean;
 };
 declare const connectDb: (uri: string) => void;
-declare const sendToken: (res: Response, user: {
-    _id: string;
-}, code: number, message: string) => Response;
+declare const sendToken: (res: Response, user: IUserWithId, code: number, message: string) => Response;
 declare const emitEvent: (req: Request, event: string, users: string[], data: unknown) => void;
 interface UploadedFile {
     public_id: string;

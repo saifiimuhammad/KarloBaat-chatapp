@@ -1,13 +1,16 @@
-export function registerValidator(): import("express-validator").ValidationChain[];
-export function validateHandler(req: any, res: any, next: any): any;
-export function loginValidator(): import("express-validator").ValidationChain[];
-export function newGroupValidator(): import("express-validator").ValidationChain[];
-export function addMemberValidator(): import("express-validator").ValidationChain[];
-export function removeMemberValidator(): import("express-validator").ValidationChain[];
-export function sendAttachementsValidator(): import("express-validator").ValidationChain[];
-export function chatIdValidator(): import("express-validator").ValidationChain[];
-export function renameValidator(): import("express-validator").ValidationChain[];
-export function sendRequestValidator(): import("express-validator").ValidationChain[];
-export function acceptRequestValidator(): import("express-validator").ValidationChain[];
-export function adminLoginValidator(): import("express-validator").ValidationChain[];
+import { ValidationChain } from "express-validator";
+import type { Request, Response, NextFunction } from "express";
+declare const validateHandler: (req: Request, res: Response, next: NextFunction) => void;
+declare const registerValidator: () => ValidationChain[];
+declare const loginValidator: () => ValidationChain[];
+declare const newGroupValidator: () => ValidationChain[];
+declare const addMemberValidator: () => ValidationChain[];
+declare const removeMemberValidator: () => ValidationChain[];
+declare const sendAttachementsValidator: () => ValidationChain[];
+declare const chatIdValidator: () => ValidationChain[];
+declare const renameValidator: () => ValidationChain[];
+declare const sendRequestValidator: () => ValidationChain[];
+declare const acceptRequestValidator: () => ValidationChain[];
+declare const adminLoginValidator: () => ValidationChain[];
+export { registerValidator, validateHandler, loginValidator, newGroupValidator, addMemberValidator, removeMemberValidator, sendAttachementsValidator, chatIdValidator, renameValidator, sendRequestValidator, acceptRequestValidator, adminLoginValidator, };
 //# sourceMappingURL=validators.d.ts.map
