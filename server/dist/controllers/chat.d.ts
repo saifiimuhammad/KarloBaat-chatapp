@@ -1,12 +1,14 @@
-export const addMembers: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const deleteChat: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getChatDetails: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getMessages: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getMyChats: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getMyGroups: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const leaveGroup: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const newGroupChat: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const removeMember: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const renameGroup: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const sendAttachments: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
+import { Request, Response, NextFunction } from "express";
+declare const newGroupChat: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getMyChats: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getMyGroups: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const addMembers: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const removeMember: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const leaveGroup: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const sendAttachments: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getChatDetails: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const renameGroup: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const deleteChat: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getMessages: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export { addMembers, deleteChat, getChatDetails, getMessages, getMyChats, getMyGroups, leaveGroup, newGroupChat, removeMember, renameGroup, sendAttachments, };
 //# sourceMappingURL=chat.d.ts.map

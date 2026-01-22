@@ -6,11 +6,12 @@ import { Message } from "../models/message.js";
 import { User } from "../models/user.js";
 import { cookieOptions } from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
+// --- ADMIN LOGIN ---
 const adminLogin = TryCatch(async (req, res, next) => {
     const { secretKey } = req.body;
-    const isMatched = secretKey === adminSecretKey;
-    if (!isMatched)
+    if (secretKey !== adminSecretKey) {
         return next(new ErrorHandler("Invalid Admin Key", 401));
+    }
     const token = jwt.sign({ secretKey }, process.env.JWT_SECRET);
     return res
         .status(200)
@@ -23,28 +24,27 @@ const adminLogin = TryCatch(async (req, res, next) => {
         message: "Authenticated Successfully, Welcome Sir",
     });
 });
+// --- ADMIN LOGOUT ---
 const adminLogout = TryCatch(async (req, res, next) => {
-    if (!req.cookies["karlobaat-admin-token"])
+    if (!req.cookies["karlobaat-admin-token"]) {
         return next(new ErrorHandler("Already Logged Out", 400));
+    }
     return res
         .status(200)
-        .cookie("karlobaat-admin-token", "", {
-        ...cookieOptions,
-        maxAge: 0,
-    })
+        .cookie("karlobaat-admin-token", "", { ...cookieOptions, maxAge: 0 })
         .json({
         success: true,
         message: "Logged Out Successfully",
     });
 });
-const getAdminData = TryCatch(async (req, res, next) => {
-    return res.status(200).json({
-        admin: true,
-    });
+// --- GET ADMIN DATA ---
+const getAdminData = TryCatch(async (_req, res) => {
+    res.status(200).json({ admin: true });
 });
-const allUsers = TryCatch(async (req, res, next) => {
+// --- GET ALL USERS ---
+const allUsers = TryCatch(async (_req, res) => {
     const allUsers = await User.find({}).lean();
-    const transformedUsers = await Promise.all(allUsers?.map(async (user) => {
+    const transformedUsers = await Promise.all(allUsers.map(async (user) => {
         const [groups, friends] = await Promise.all([
             Chat.countDocuments({ groupChat: true, members: user._id }),
             Chat.countDocuments({ groupChat: false, members: user._id }),
@@ -56,64 +56,56 @@ const allUsers = TryCatch(async (req, res, next) => {
             friends,
         };
     }));
-    return res.status(200).json({
-        success: true,
-        users: transformedUsers,
-    });
+    res.status(200).json({ success: true, users: transformedUsers });
 });
-const allChats = TryCatch(async (req, res, next) => {
+// --- GET ALL CHATS ---
+const allChats = TryCatch(async (_req, res) => {
     const allChats = await Chat.find({})
-        .populate("members", "name avatar")
-        .populate("creator", "name avatar")
+        .populate("members creator", "name avatar")
         .lean();
-    const transformedChats = await Promise.all(allChats?.map(async (chat) => {
+    const transformedChats = await Promise.all(allChats.map(async (chat) => {
         const totalMessages = await Message.countDocuments({ chat: chat._id });
+        const members = chat.members;
         return {
             ...chat,
-            avatar: chat.members.slice(0, 3).map((member) => member.avatar.url),
-            members: chat.members.map((member) => ({
+            avatar: members.slice(0, 3).map((member) => member.avatar?.url),
+            members: members.map((member) => ({
                 ...member,
-                avatar: member.avatar.url,
+                avatar: member.avatar?.url,
             })),
             creator: {
-                name: chat?.creator?.name || "None",
-                avatar: chat?.creator?.avatar?.url || "",
+                name: chat.creator?.name || "None",
+                avatar: chat.creator?.avatar?.url || "",
             },
             totalMembers: chat.members.length,
             totalMessages,
         };
     }));
-    return res.status(200).json({
-        success: true,
-        chats: transformedChats,
-    });
+    res.status(200).json({ success: true, chats: transformedChats });
 });
-const allMessages = TryCatch(async (req, res, next) => {
+// --- GET ALL MESSAGES ---
+const allMessages = TryCatch(async (_req, res) => {
     const allMessages = await Message.find({})
         .populate("sender", "name avatar")
         .populate("chat", "groupChat")
         .lean();
-    const transformedMessages = allMessages.map(({ _id, content, attachments, sender, chat, createdAt }) => {
-        return {
-            _id,
-            content,
-            attachments,
-            sender: {
-                _id: sender._id,
-                name: sender.name,
-                avatar: sender.avatar.url,
-            },
-            chat: chat._id,
-            groupChat: chat.groupChat,
-            createdAt,
-        };
-    });
-    return res.status(200).json({
-        success: true,
-        messages: transformedMessages,
-    });
+    const transformedMessages = allMessages.map((msg) => ({
+        _id: msg._id,
+        content: msg.content,
+        attachments: msg.attachments,
+        sender: {
+            _id: msg.sender._id,
+            name: msg.sender.name,
+            avatar: msg.sender.avatar?.url,
+        },
+        chat: msg.chat._id,
+        groupChat: msg.chat.groupChat,
+        createdAt: msg.createdAt,
+    }));
+    res.status(200).json({ success: true, messages: transformedMessages });
 });
-const getDashboardStats = TryCatch(async (req, res, next) => {
+// --- DASHBOARD STATS ---
+const getDashboardStats = TryCatch(async (_req, res) => {
     const [groupsCount, usersCount, messagesCount, totalChatsCount] = await Promise.all([
         Chat.countDocuments({ groupChat: true }),
         User.countDocuments(),
@@ -123,32 +115,27 @@ const getDashboardStats = TryCatch(async (req, res, next) => {
     const singleChatsCount = totalChatsCount - groupsCount;
     const today = new Date();
     const last7Days = new Date();
-    last7Days.setDate(last7Days.getDate() - 7);
+    last7Days.setDate(today.getDate() - 7);
     const last7DaysMessages = await Message.find({
-        createdAt: {
-            $gte: last7Days,
-            $lte: today,
-        },
+        createdAt: { $gte: last7Days, $lte: today },
     }).select("createdAt");
-    const messages = new Array(7).fill(0);
-    const daysInMiliseconds = 1000 * 60 * 60 * 24;
-    last7DaysMessages.forEach((message) => {
-        const indexApprox = (today.getTime() - message.createdAt.getTime()) / daysInMiliseconds;
-        const index = Math.floor(indexApprox);
-        messages[6 - index]++;
+    const messagesChart = new Array(7).fill(0);
+    const dayMs = 1000 * 60 * 60 * 24;
+    last7DaysMessages.forEach((msg) => {
+        const index = Math.floor((today.getTime() - msg.createdAt.getTime()) / dayMs);
+        messagesChart[6 - index]++;
     });
-    const stats = {
-        singleChatsCount,
-        groupsCount,
-        totalChatsCount,
-        usersCount,
-        messagesCount,
-        messagesChart: messages,
-    };
-    return res.status(200).json({
+    res.status(200).json({
         success: true,
-        stats,
+        stats: {
+            singleChatsCount,
+            groupsCount,
+            totalChatsCount,
+            usersCount,
+            messagesCount,
+            messagesChart,
+        },
     });
 });
-export { adminLogin, adminLogout, allChats, allMessages, allUsers, getAdminData, getDashboardStats, };
+export { adminLogin, adminLogout, allUsers, allChats, allMessages, getAdminData, getDashboardStats, };
 //# sourceMappingURL=admin.js.map

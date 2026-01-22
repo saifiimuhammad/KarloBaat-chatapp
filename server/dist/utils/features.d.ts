@@ -8,7 +8,7 @@ export declare const cookieOptions: {
 };
 declare const connectDb: (uri: string) => void;
 declare const sendToken: (res: Response, user: IUserWithId, code: number, message: string) => Response;
-declare const emitEvent: (req: Request, event: string, users: string[], data: unknown) => void;
+declare const emitEvent: (req: Request, event: string, users: string[], data?: unknown) => void;
 interface UploadedFile {
     public_id: string;
     url: string;

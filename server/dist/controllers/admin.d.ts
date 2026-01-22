@@ -1,8 +1,10 @@
-export const adminLogin: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const adminLogout: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const allChats: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const allMessages: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const allUsers: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getAdminData: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
-export const getDashboardStats: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
+import { Request, Response, NextFunction } from "express";
+declare const adminLogin: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const adminLogout: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getAdminData: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const allUsers: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const allChats: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const allMessages: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const getDashboardStats: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export { adminLogin, adminLogout, allUsers, allChats, allMessages, getAdminData, getDashboardStats, };
 //# sourceMappingURL=admin.d.ts.map

@@ -59,7 +59,7 @@ const emitEvent = (
   req: Request,
   event: string,
   users: string[],
-  data: unknown,
+  data?: unknown,
 ): void => {
   const io = req.app.get("io");
   const usersSockets = getSockets(users);

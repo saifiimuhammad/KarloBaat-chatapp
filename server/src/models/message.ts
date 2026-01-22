@@ -1,10 +1,14 @@
 import { model, Schema, Types } from "mongoose";
 
-interface IMessage {
+export interface IMessage {
   sender: Types.ObjectId;
   chat: Types.ObjectId;
   content?: string;
   attachments?: any[];
+}
+
+export interface IMessageWithId extends IMessage {
+  _id: string;
 }
 
 export const messageSchema = new Schema<IMessage>({

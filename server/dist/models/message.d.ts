@@ -1,9 +1,12 @@
 import { Schema, Types } from "mongoose";
-interface IMessage {
+export interface IMessage {
     sender: Types.ObjectId;
     chat: Types.ObjectId;
     content?: string;
     attachments?: any[];
+}
+export interface IMessageWithId extends IMessage {
+    _id: string;
 }
 export declare const messageSchema: Schema<IMessage, import("mongoose").Model<IMessage, any, any, any, import("mongoose").Document<unknown, any, IMessage, any, {}> & IMessage & {
     _id: Types.ObjectId;
@@ -19,5 +22,4 @@ export declare const Message: import("mongoose").Model<IMessage, {}, {}, {}, imp
 } & {
     __v: number;
 }, any>;
-export {};
 //# sourceMappingURL=message.d.ts.map

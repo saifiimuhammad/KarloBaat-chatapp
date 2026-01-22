@@ -7,6 +7,10 @@ export interface IChat {
   members: Types.ObjectId[];
 }
 
+export interface IChatWithId extends IChat {
+  _id: string;
+}
+
 const chatSchema = new Schema<IChat>(
   {
     name: {
