@@ -106,10 +106,12 @@ const acceptFriendRequest = TryCatch(async (req, res, next) => {
         request.reciever._id.toString(),
     ];
     await Promise.all([
-        Chat.create({
-            members,
-            name: `${request.sender.name}-${request.reciever.name}`,
-        }),
+        Chat.create([
+            {
+                members,
+                name: `${request.sender.name}-${request.reciever.name}`,
+            },
+        ]),
         request.deleteOne(),
     ]);
     emitEvent(req, REFETCH_CHATS, members, null);
@@ -157,7 +159,7 @@ const getMyFriends = TryCatch(async (req, res, next) => {
         return next(new ErrorHandler("No friends found", 404));
     if (chatId) {
         const chat = await Chat.findById(chatId).populate("members", "name avatar");
-        const availableFriends = friends.filter((friend) => !chat?.members.some((m) => m._id.toString() === friend._id));
+        const availableFriends = friends.filter((friend) => !chat?.members.some((m) => m._id.toString() === friend?._id));
         return res.status(200).json({ success: true, friends: availableFriends });
     }
     res.status(200).json({ success: true, friends });
@@ -208,5 +210,5 @@ const editProfile = TryCatch(async (req, res, next) => {
         user: updatedUser,
     });
 });
-export { acceptFriendRequest, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, fetchUserDetails, editProfile, };
+export { acceptFriendRequest, editProfile, fetchUserDetails, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, };
 //# sourceMappingURL=user.js.map

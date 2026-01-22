@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
-import { getOtherMembers } from "../lib/helper.js";
+import { getOtherMembers, IUserWithId } from "../lib/helper.js";
 import { TryCatch } from "../middlewares/error.js";
-import { Chat, IChat } from "../models/chat.js";
+import { Chat } from "../models/chat.js";
 import { Request as FriendRequest } from "../models/request.js";
-import { User, IUser } from "../models/user.js";
+import { IUser, User } from "../models/user.js";
 import {
   cookieOptions,
   emitEvent,
@@ -19,9 +19,6 @@ export interface AuthenticatedRequest extends Request {
   user: string;
   file?: Express.Multer.File;
 }
-
-// Helper type for IUser with _id string
-type IUserWithId = IUser & { _id: string };
 
 // --- NEW USER ---
 const newUser = TryCatch(
@@ -144,8 +141,8 @@ const acceptFriendRequest = TryCatch(
     const { requestId, accept } = req.body;
 
     const request = await FriendRequest.findById(requestId)
-      .populate("sender", "name")
-      .populate("reciever", "name");
+      .populate<{ sender: IUserWithId }>("sender", "name")
+      .populate<{ reciever: IUserWithId }>("reciever", "name");
 
     if (!request) return next(new ErrorHandler("Request not found", 404));
     if (request.reciever._id.toString() !== (req as AuthenticatedRequest).user)
@@ -166,10 +163,12 @@ const acceptFriendRequest = TryCatch(
     ];
 
     await Promise.all([
-      Chat.create({
-        members,
-        name: `${request.sender.name}-${request.reciever.name}`,
-      }),
+      Chat.create([
+        {
+          members,
+          name: `${request.sender.name}-${request.reciever.name}`,
+        },
+      ]),
       request.deleteOne(),
     ]);
 
@@ -187,7 +186,7 @@ const acceptFriendRequest = TryCatch(
 const getAllNotifications = TryCatch(async (req: Request, res: Response) => {
   const requests = await FriendRequest.find({
     reciever: (req as AuthenticatedRequest).user,
-  }).populate("sender", "name avatar");
+  }).populate<{ sender: IUserWithId }>("sender", "name avatar");
 
   const allRequests = requests.map(({ _id, sender }) => ({
     _id: _id.toString(),
@@ -208,12 +207,12 @@ const getMyFriends = TryCatch(
     const chats = await Chat.find({
       members: (req as AuthenticatedRequest).user,
       groupChat: false,
-    }).populate("members", "name avatar");
+    }).populate<{ members: IUserWithId[] }>("members", "name avatar");
 
     const friends = chats
       .map(({ members }) => {
         const otherUser = getOtherMembers(
-          members as IUserWithId[],
+          members,
           (req as AuthenticatedRequest).user,
         );
         if (!otherUser) return null;
@@ -234,7 +233,7 @@ const getMyFriends = TryCatch(
       );
       const availableFriends = friends.filter(
         (friend) =>
-          !chat?.members.some((m: any) => m._id.toString() === friend._id),
+          !chat?.members.some((m: any) => m._id.toString() === friend?._id),
       );
       return res.status(200).json({ success: true, friends: availableFriends });
     }
@@ -298,6 +297,8 @@ const editProfile = TryCatch(
 
 export {
   acceptFriendRequest,
+  editProfile,
+  fetchUserDetails,
   getAllNotifications,
   getMyFriends,
   getMyProfile,
@@ -306,6 +307,4 @@ export {
   newUser,
   searchUser,
   sendFriendRequest,
-  fetchUserDetails,
-  editProfile,
 };

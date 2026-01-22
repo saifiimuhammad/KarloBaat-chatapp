@@ -1,6 +1,6 @@
-import mongoose, { Schema, model, Types, Document } from "mongoose";
+import mongoose, { Schema, model, Types, Model } from "mongoose";
 
-export interface IChat extends Document {
+export interface IChat {
   name: string;
   groupChat: boolean;
   creator?: Types.ObjectId;
@@ -34,4 +34,5 @@ const chatSchema = new Schema<IChat>(
   },
 );
 
-export const Chat = mongoose.models.Chat || model<IChat>("Chat", chatSchema);
+export const Chat: Model<IChat> =
+  mongoose.models.Chat || model<IChat>("Chat", chatSchema);

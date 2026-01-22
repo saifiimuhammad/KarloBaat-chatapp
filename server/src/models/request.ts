@@ -1,6 +1,6 @@
-import mongoose, { Schema, model, Types, Document } from "mongoose";
+import mongoose, { Schema, model, Types, Model } from "mongoose";
 
-export interface IRequest extends Document {
+export interface IRequest {
   status: "pending" | "accepted" | "rejected";
   sender: Types.ObjectId;
   reciever: Types.ObjectId;
@@ -26,8 +26,8 @@ const requestSchema = new Schema<IRequest>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-export const Request =
+export const Request: Model<IRequest> =
   mongoose.models.Request || model<IRequest>("Request", requestSchema);
