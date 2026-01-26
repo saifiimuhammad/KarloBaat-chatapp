@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { Types } from "mongoose";
 import {
   ALERT,
   NEW_MESSAGE,
@@ -125,9 +126,14 @@ const addMembers = TryCatch(
     if (!members || members.length < 1)
       return next(new ErrorHandler("Please add members", 400));
 
-    const chat = await Chat.findById<IChatWithId & { members: IUserWithId[] }>(
-      chatId,
-    );
+    // Define the type for a populated chat
+    type PopulatedChat = IChatWithId & { members: IUserWithId[] };
+
+    // Fetch the chat
+    const chat = await Chat.findById(chatId)
+      .populate<{ members: string[] }>("members")
+      .exec();
+
     if (!chat) return next(new ErrorHandler("Chat not found", 404));
     if (!chat.groupChat)
       return next(new ErrorHandler("This is not a group chat", 400));
@@ -149,8 +155,8 @@ const addMembers = TryCatch(
     )) as IUserWithId[];
 
     const uniqueMembers = allNewMembers
-      .filter((i) => !chat.members.includes(i._id.toString()))
-      .map((i) => i._id.toString());
+      .filter((i) => !chat.members.includes(i._id))
+      .map((i) => i._id);
 
     chat.members.push(...uniqueMembers);
 
@@ -207,10 +213,15 @@ const removeMember = TryCatch(
 
     await chat.save();
 
-    emitEvent(req, ALERT, chat.members, {
-      message: `${userThatWillBeRemoved!.name} is removed from ${chat.name}`,
-      chatId,
-    });
+    emitEvent(
+      req,
+      ALERT,
+      chat.members.map((i) => i.toString()),
+      {
+        message: `${userThatWillBeRemoved!.name} is removed from ${chat.name}`,
+        chatId,
+      },
+    );
     emitEvent(req, REFETCH_CHATS, allChatMembers);
 
     return res.status(200).json({
@@ -238,9 +249,9 @@ const leaveGroup = TryCatch(
       return next(new ErrorHandler("Chat must have at least 3 members", 400));
 
     if (
-      chat.creator.toString() === (req as AuthenticatedRequest).user.toString()
+      chat.creator?.toString() === (req as AuthenticatedRequest).user.toString()
     ) {
-      const newCreator = remainingMembers[0];
+      const newCreator = remainingMembers[0]!;
       chat.creator = newCreator;
     }
 
@@ -251,10 +262,15 @@ const leaveGroup = TryCatch(
       chat.save(),
     ]);
 
-    emitEvent(req, ALERT, chat.members, {
-      message: `${user!.name} left the chat`,
-      chatId,
-    });
+    emitEvent(
+      req,
+      ALERT,
+      chat.members.map((i) => i.toString()),
+      {
+        message: `${user!.name} left the chat`,
+        chatId,
+      },
+    );
 
     return res.status(200).json({
       success: true,
@@ -275,7 +291,7 @@ const sendAttachments = TryCatch(
 
     if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
-    const files = req.files || [];
+    const files = (req.files || []) as Express.Multer.File[];
 
     if (files.length < 1)
       return next(new ErrorHandler("Please provide attachments", 400));
@@ -301,12 +317,22 @@ const sendAttachments = TryCatch(
 
     const message = await Message.create(messageForDb);
 
-    emitEvent(req, NEW_MESSAGE, chat.members, {
-      message: messageForRealTime,
-      chatId,
-    });
+    emitEvent(
+      req,
+      NEW_MESSAGE,
+      chat.members.map((i) => i.toString()),
+      {
+        message: messageForRealTime,
+        chatId,
+      },
+    );
 
-    emitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId });
+    emitEvent(
+      req,
+      NEW_MESSAGE_ALERT,
+      chat.members.map((i) => i.toString()),
+      { chatId },
+    );
 
     return res.status(200).json({
       success: true,
@@ -320,20 +346,25 @@ const getChatDetails = TryCatch(
   async (req: Request, res: Response, next: NextFunction) => {
     if (req.query.populate === "true") {
       const chat = await Chat.findById(req.params.id)
-        .populate("members", "name avatar")
+        .populate<{ members: IUserWithId[] }>("members", "name avatar")
         .lean();
 
       if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
-      chat.members = (chat.members as IUser[]).map(({ _id, name, avatar }) => ({
-        _id,
-        name,
-        avatar: avatar.url,
-      }));
+      const transformedMembers = (chat.members as IUserWithId[]).map(
+        ({ _id, name, avatar }) => ({
+          _id,
+          name,
+          avatar: avatar.url,
+        }),
+      );
 
       return res.status(200).json({
         success: true,
-        chat,
+        chat: {
+          ...chat,
+          members: transformedMembers,
+        },
       });
     } else {
       const chat = await Chat.findById(req.params.id);
@@ -356,16 +387,23 @@ const renameGroup = TryCatch(
     if (!chat) return next(new ErrorHandler("Chat not found", 404));
     if (!chat.groupChat)
       return next(new ErrorHandler("This is not a group chat", 400));
-    if (
-      chat.creator.toString() !== (req as AuthenticatedRequest).user.toString()
-    )
-      return next(
-        new ErrorHandler("You are not allowed to rename this group", 403),
-      );
+    if (chat.creator) {
+      if (
+        chat.creator.toString() !==
+        (req as AuthenticatedRequest).user.toString()
+      )
+        return next(
+          new ErrorHandler("You are not allowed to rename this group", 403),
+        );
+    }
 
     chat.name = name;
     await chat.save();
-    emitEvent(req, REFETCH_CHATS, chat.members);
+    emitEvent(
+      req,
+      REFETCH_CHATS,
+      chat.members.map((i) => i.toString()),
+    );
 
     return res.status(200).json({
       success: true,
@@ -391,7 +429,7 @@ const deleteChat = TryCatch(
 
     const public_ids: string[] = [];
     messagesWithAttachments.forEach((attachment) => {
-      attachment.attachments.forEach(({ public_id }) =>
+      attachment.attachments?.forEach(({ public_id }) =>
         public_ids.push(public_id),
       );
     });
@@ -402,7 +440,11 @@ const deleteChat = TryCatch(
       Message.deleteMany({ chat: chatId }),
     ]);
 
-    emitEvent(req, REFETCH_CHATS, members);
+    emitEvent(
+      req,
+      REFETCH_CHATS,
+      members.map((i) => i.toString()),
+    );
 
     return res.status(200).json({
       success: true,
@@ -421,7 +463,11 @@ const getMessages = TryCatch(
 
     const chat = await Chat.findById(chatId);
     if (!chat) return next(new ErrorHandler("Chat not found", 404));
-    if (!chat.members.includes((req as AuthenticatedRequest).user.toString()))
+    if (
+      !chat.members.includes(
+        new Types.ObjectId((req as AuthenticatedRequest).user),
+      )
+    )
       return next(
         new ErrorHandler("You are not allowed to access this chat", 403),
       );

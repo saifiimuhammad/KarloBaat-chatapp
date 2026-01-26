@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { ALERT, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFETCH_CHATS, } from "../constants/events.js";
 import { getOtherMembers } from "../lib/helper.js";
 import { TryCatch } from "../middlewares/error.js";
@@ -80,7 +81,10 @@ const addMembers = TryCatch(async (req, res, next) => {
     const { chatId, members } = req.body;
     if (!members || members.length < 1)
         return next(new ErrorHandler("Please add members", 400));
-    const chat = await Chat.findById(chatId);
+    // Fetch the chat
+    const chat = await Chat.findById(chatId)
+        .populate("members")
+        .exec();
     if (!chat)
         return next(new ErrorHandler("Chat not found", 404));
     if (!chat.groupChat)
@@ -93,8 +97,8 @@ const addMembers = TryCatch(async (req, res, next) => {
     const allMembersPromise = members.map((id) => User.findById(id, "name"));
     const allNewMembers = (await Promise.all(allMembersPromise));
     const uniqueMembers = allNewMembers
-        .filter((i) => !chat.members.includes(i._id.toString()))
-        .map((i) => i._id.toString());
+        .filter((i) => !chat.members.includes(i._id))
+        .map((i) => i._id);
     chat.members.push(...uniqueMembers);
     if (chat.members.length > 100)
         return next(new ErrorHandler("Chat limit reached!", 400));
@@ -128,7 +132,7 @@ const removeMember = TryCatch(async (req, res, next) => {
     const allChatMembers = chat.members.map((i) => i.toString());
     chat.members = chat.members.filter((i) => i.toString() !== userId.toString());
     await chat.save();
-    emitEvent(req, ALERT, chat.members, {
+    emitEvent(req, ALERT, chat.members.map((i) => i.toString()), {
         message: `${userThatWillBeRemoved.name} is removed from ${chat.name}`,
         chatId,
     });
@@ -149,7 +153,7 @@ const leaveGroup = TryCatch(async (req, res, next) => {
     const remainingMembers = chat.members.filter((i) => i.toString() !== req.user.toString());
     if (remainingMembers.length <= 3)
         return next(new ErrorHandler("Chat must have at least 3 members", 400));
-    if (chat.creator.toString() === req.user.toString()) {
+    if (chat.creator?.toString() === req.user.toString()) {
         const newCreator = remainingMembers[0];
         chat.creator = newCreator;
     }
@@ -158,7 +162,7 @@ const leaveGroup = TryCatch(async (req, res, next) => {
         User.findById(req.user, "name"),
         chat.save(),
     ]);
-    emitEvent(req, ALERT, chat.members, {
+    emitEvent(req, ALERT, chat.members.map((i) => i.toString()), {
         message: `${user.name} left the chat`,
         chatId,
     });
@@ -176,7 +180,7 @@ const sendAttachments = TryCatch(async (req, res, next) => {
     ]);
     if (!chat)
         return next(new ErrorHandler("Chat not found", 404));
-    const files = req.files || [];
+    const files = (req.files || []);
     if (files.length < 1)
         return next(new ErrorHandler("Please provide attachments", 400));
     if (files.length > 6)
@@ -196,11 +200,11 @@ const sendAttachments = TryCatch(async (req, res, next) => {
         },
     };
     const message = await Message.create(messageForDb);
-    emitEvent(req, NEW_MESSAGE, chat.members, {
+    emitEvent(req, NEW_MESSAGE, chat.members.map((i) => i.toString()), {
         message: messageForRealTime,
         chatId,
     });
-    emitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId });
+    emitEvent(req, NEW_MESSAGE_ALERT, chat.members.map((i) => i.toString()), { chatId });
     return res.status(200).json({
         success: true,
         message,
@@ -214,14 +218,17 @@ const getChatDetails = TryCatch(async (req, res, next) => {
             .lean();
         if (!chat)
             return next(new ErrorHandler("Chat not found", 404));
-        chat.members = chat.members.map(({ _id, name, avatar }) => ({
+        const transformedMembers = chat.members.map(({ _id, name, avatar }) => ({
             _id,
             name,
             avatar: avatar.url,
         }));
         return res.status(200).json({
             success: true,
-            chat,
+            chat: {
+                ...chat,
+                members: transformedMembers,
+            },
         });
     }
     else {
@@ -243,11 +250,14 @@ const renameGroup = TryCatch(async (req, res, next) => {
         return next(new ErrorHandler("Chat not found", 404));
     if (!chat.groupChat)
         return next(new ErrorHandler("This is not a group chat", 400));
-    if (chat.creator.toString() !== req.user.toString())
-        return next(new ErrorHandler("You are not allowed to rename this group", 403));
+    if (chat.creator) {
+        if (chat.creator.toString() !==
+            req.user.toString())
+            return next(new ErrorHandler("You are not allowed to rename this group", 403));
+    }
     chat.name = name;
     await chat.save();
-    emitEvent(req, REFETCH_CHATS, chat.members);
+    emitEvent(req, REFETCH_CHATS, chat.members.map((i) => i.toString()));
     return res.status(200).json({
         success: true,
         message: "Group renamed successfully",
@@ -266,14 +276,14 @@ const deleteChat = TryCatch(async (req, res, next) => {
     });
     const public_ids = [];
     messagesWithAttachments.forEach((attachment) => {
-        attachment.attachments.forEach(({ public_id }) => public_ids.push(public_id));
+        attachment.attachments?.forEach(({ public_id }) => public_ids.push(public_id));
     });
     await Promise.all([
         deleteFilesFromCloudinary(public_ids),
         chat.deleteOne(),
         Message.deleteMany({ chat: chatId }),
     ]);
-    emitEvent(req, REFETCH_CHATS, members);
+    emitEvent(req, REFETCH_CHATS, members.map((i) => i.toString()));
     return res.status(200).json({
         success: true,
         message: "Chat deleted successfully",
@@ -288,7 +298,7 @@ const getMessages = TryCatch(async (req, res, next) => {
     const chat = await Chat.findById(chatId);
     if (!chat)
         return next(new ErrorHandler("Chat not found", 404));
-    if (!chat.members.includes(req.user.toString()))
+    if (!chat.members.includes(new Types.ObjectId(req.user)))
         return next(new ErrorHandler("You are not allowed to access this chat", 403));
     const [messages, totalMessagesCount] = await Promise.all([
         Message.find({ chat: chatId })
