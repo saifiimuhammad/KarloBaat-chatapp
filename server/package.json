@@ -8,6 +8,9 @@
     "dev": "nodemon --watch src --ext ts --exec \"tsc && node dist/app.js\"",
     "build": "tsc"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
