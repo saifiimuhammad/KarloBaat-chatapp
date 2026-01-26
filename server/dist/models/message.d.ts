@@ -8,18 +8,12 @@ export interface IMessage {
 export interface IMessageWithId extends IMessage {
     _id: string;
 }
-export declare const messageSchema: Schema<IMessage, import("mongoose").Model<IMessage, any, any, any, import("mongoose").Document<unknown, any, IMessage, any, {}> & IMessage & {
+export declare const messageSchema: Schema<IMessage, import("mongoose").Model<IMessage, any, any, any, import("mongoose").Document<unknown, any, IMessage> & IMessage & {
     _id: Types.ObjectId;
-} & {
-    __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IMessage, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IMessage>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<IMessage> & {
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IMessage, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IMessage>> & import("mongoose").FlatRecord<IMessage> & {
     _id: Types.ObjectId;
-} & {
-    __v: number;
 }>;
-export declare const Message: import("mongoose").Model<IMessage, {}, {}, {}, import("mongoose").Document<unknown, {}, IMessage, {}, {}> & IMessage & {
+export declare const Message: import("mongoose").Model<IMessage, {}, {}, {}, import("mongoose").Document<unknown, {}, IMessage> & IMessage & {
     _id: Types.ObjectId;
-} & {
-    __v: number;
 }, any>;
 //# sourceMappingURL=message.d.ts.map

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import type { Socket, ExtendedError } from "socket.io";
+import type { Socket } from "socket.io";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { adminSecretKey } from "../app.js";
@@ -74,9 +74,9 @@ const adminOnly = (req: Request, _res: Response, next: NextFunction): void => {
    Socket.IO Auth Middleware
 ======================= */
 const socketAuthenticator = (
-  err: ExtendedError | undefined,
+  err: Error | undefined,
   socket: AuthSocket,
-  next: (err?: ExtendedError) => void,
+  next: (err?: Error | undefined) => void,
 ): void => {
   (async () => {
     try {

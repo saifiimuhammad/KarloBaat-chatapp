@@ -46,7 +46,7 @@ const Login = () => {
           username: username.value,
           password: password.value,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       dispatch(userExists(data.user));
@@ -87,8 +87,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-xl border border-secondary/30 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-white md:bg-background md:px-4">
+      <div className="w-full max-w-md md:rounded-2xl bg-white md:shadow-xl md:border border-secondary/30 p-8">
         <div className="">
           <h2 className="text-lg font-semibold tracking-tight flex items-center justify-center gap-1 text-center mb-4 text-text/80">
             <MessageCircleHeartIcon /> Karlobaat

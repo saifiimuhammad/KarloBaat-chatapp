@@ -29,36 +29,36 @@ import {
   useRemoveGroupMembersMutation,
   useRenameGroupMutation,
 } from "../redux/api/api";
-import { setIsAddMember } from "../redux/reducers/misc";
+import { setIsAddMember, setIsMobile } from "../redux/reducers/misc";
 import { transformImage } from "../lib/features";
 
 const ConfirmDeleteDialog = lazy(
-  () => import("../components/dialogs/ConfirmDeleteDialog")
+  () => import("../components/dialogs/ConfirmDeleteDialog"),
 );
 const AddMemberDialog = lazy(
-  () => import("../components/dialogs/AddMemberDialog")
+  () => import("../components/dialogs/AddMemberDialog"),
 );
 
 const Groups = () => {
   const chatId = useSearchParams()[0].get("group");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isAddMember } = useSelector((state) => state.misc);
+  const { isAddMember, isMobile } = useSelector((state) => state.misc);
 
   const myGroups = useMyGroupsQuery();
   const groupDetails = useChatDetailsQuery(
     { chatId, populate: true },
-    { skip: !chatId }
+    { skip: !chatId },
   );
 
   const [renameGroup, isLoadingGroupName] = useAsyncMutation(
-    useRenameGroupMutation
+    useRenameGroupMutation,
   );
   const [removeMember, isLoadingRemoveMember] = useAsyncMutation(
-    useRemoveGroupMembersMutation
+    useRemoveGroupMembersMutation,
   );
   const [deleteGroup, isLoadingDeleteGroup] = useAsyncMutation(
-    useDeleteChatMutation
+    useDeleteChatMutation,
   );
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -90,7 +90,7 @@ const Groups = () => {
   }, [groupDetails.data]);
 
   const handleMobile = () => setIsMobileMenuOpen((prev) => !prev);
-  const handleMobileClose = () => setIsMobileMenuOpen(false);
+  const handleMobileClose = () => dispatch(setIsMobile(false));
 
   const updateGroupName = () => {
     setIsEdit(false);
@@ -131,7 +131,7 @@ const Groups = () => {
     if (!debouncedQuery) return myGroups.data.groups;
 
     return myGroups.data.groups.filter((group) =>
-      group.name.toLowerCase().includes(debouncedQuery)
+      group.name.toLowerCase().includes(debouncedQuery),
     );
   }, [debouncedQuery, myGroups]);
 
@@ -313,16 +313,13 @@ const Groups = () => {
       )}
 
       {/* Mobile Drawer */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 sm:hidden z-50">
+      {isMobile && (
+        <div
+          className="fixed inset-0 bg-black/50 sm:hidden z-50"
+          onClick={handleMobileClose}
+        >
           <div className="bg-white w-4/5 h-full p-4">
             <GroupsList myGroups={myGroups?.data?.groups} chatId={chatId} />
-            <button
-              onClick={handleMobileClose}
-              className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
@@ -405,7 +402,7 @@ const GroupMember = memo(
         </button>
       </div>
     );
-  }
+  },
 );
 
 export default Groups;
