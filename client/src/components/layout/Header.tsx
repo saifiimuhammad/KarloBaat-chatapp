@@ -265,7 +265,7 @@ const Header = () => {
 
             <button
               onClick={() => navigate(`/edit-profile`)}
-              className="w-full p-2 hover:bg-gray-100 text-sm"
+              className="w-full p-2 hover:bg-gray-100 text-sm sm:hidden"
             >
               <CircleUser size={18} />
             </button>
