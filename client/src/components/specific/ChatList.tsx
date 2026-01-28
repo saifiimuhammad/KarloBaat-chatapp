@@ -58,8 +58,8 @@ const ChatList: React.FC<ChatListProps> = ({
   }, [debouncedQuery, chats]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4">
+    <div className="flex flex-col h-[91vh]">
+      <div className="p-4 shrink-0">
         <div className="relative w-full">
           <div
             className={`absolute left-3 top-5 -translate-y-1/2 text-[#9b988c] ${
@@ -87,7 +87,7 @@ const ChatList: React.FC<ChatListProps> = ({
       </div>
       <div
         style={{ width: w }}
-        className="flex-1 h-full overflow-y-auto px-2 no-scrollbar"
+        className="flex-1 overflow-y-auto px-2 no-scrollbar"
       >
         {filteredChats.length === 0 ? (
           <div className="flex h-full items-center justify-center">

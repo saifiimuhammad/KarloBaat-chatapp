@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import FileMenu from "../components/dialogs/FileMenu";
 import MessageComponent from "../components/shared/MessageComponent";
-import { TypingLoader } from "../components/layout/Loaders";
+import { LayoutLoader, TypingLoader } from "../components/layout/Loaders";
 
 import {
   ALERT,
@@ -98,9 +98,11 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const currentChat = chats.find((chat) => chat._id === chatId)!;
+  // Wait for chats to exist before computing currentChat
+  const currentChat = chats?.find((c) => c._id === chatId) || null;
+
   const otherMembers =
-    currentChat.members?.filter((id) => id !== user._id) || [];
+    currentChat?.members?.filter((id) => id !== user._id) || [];
   const isOnline = onlineUsers.includes(otherMembers[0]!);
 
   // console.log(currentChat);
@@ -109,7 +111,7 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [page, setPage] = useState(1);
   const [fileMenuAnchor, setFileMenuAnchor] = useState<HTMLElement | null>(
-    null
+    null,
   );
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
@@ -125,7 +127,7 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
     oldMessagesChunk.data?.totalPages,
     page,
     setPage,
-    oldMessagesChunk.data?.messages
+    oldMessagesChunk.data?.messages,
   );
 
   const members = chatDetails.data?.chat?.members;
@@ -177,19 +179,32 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
       input.focus();
       input.setSelectionRange(
         start + emojiData.emoji.length,
-        start + emojiData.emoji.length
+        start + emojiData.emoji.length,
       );
     });
   };
 
+  // -------------------- Effects -------------------- //
+
+  // Reset chat state on chat change
   useEffect(() => {
+    setMessages([]);
+    setMessage("");
+    setPage(1);
+    setUserDetails(null);
+  }, [currentChat]);
+
+  // Fetch other member's details safely
+  useEffect(() => {
+    if (otherMembers.length === 0) return;
+
     const fetchUser = async () => {
       try {
         const { data } = await axios.get(
           `${server}/api/v1/user/fetch/${otherMembers[0]}`,
           {
             withCredentials: true,
-          }
+          },
         );
 
         setUserDetails(data.user);
@@ -199,24 +214,20 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
     };
 
     fetchUser();
-  }, []);
+  }, [chatId, otherMembers]);
 
+  // Close emoji picker on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
         setShowEmoji(false);
       }
     };
-
-    if (showEmoji) {
-      document.addEventListener("mousedown", handler);
-    }
-
+    if (showEmoji) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [showEmoji]);
 
-  /* ---------------- lifecycle ---------------- */
-
+  // Join chat on mount
   useEffect(() => {
     socket.emit(CHAT_JOINED, { userId: user._id, members });
     dispatch(removeNewMessagesAlert(chatId));
@@ -228,12 +239,14 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
       setPage(1);
       socket.emit(CHAT_LEAVED, { userId: user._id, members });
     };
-  }, [chatId]);
+  }, [chatId, members]);
 
+  // Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, oldMessages]);
 
+  // Redirect if chat details error
   useEffect(() => {
     if (chatDetails.isError) navigate("/");
   }, [chatDetails.isError]);
@@ -245,7 +258,7 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
       if (data.chatId !== chatId) return;
       setMessages((prev) => [...prev, data.message]);
     },
-    [chatId]
+    [chatId],
   );
 
   const startTypingListener = useCallback(
@@ -253,7 +266,7 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
       if (data.chatId !== chatId) return;
       setUserTyping(true);
     },
-    [chatId]
+    [chatId],
   );
 
   const stopTypingListener = useCallback(
@@ -261,7 +274,7 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
       if (data.chatId !== chatId) return;
       setUserTyping(false);
     },
-    [chatId]
+    [chatId],
   );
 
   const alertListener = useCallback(
@@ -280,7 +293,7 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
 
       setMessages((prev) => [...prev, alertMessage]);
     },
-    [chatId]
+    [chatId],
   );
 
   useSocketEvents(socket, {
@@ -295,16 +308,16 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
     { isError: oldMessagesChunk.isError, error: oldMessagesChunk.error },
   ]);
 
-  const allMessages = [...oldMessages, ...messages];
+  const allMessages = [...[...(oldMessages || [])].reverse(), ...messages];
 
   /* ---------------- UI ---------------- */
 
-  if (chatDetails.isLoading) {
+  if (!currentChat || chatDetails.isLoading) {
     return <div className="p-4 animate-pulse bg-gray-200 rounded-lg" />;
   }
 
   return (
-    <div className="flex flex-col h-full bg-background-2 border-x border-zinc-200">
+    <div className="flex flex-col h-[91vh] bg-background-2 border-x border-zinc-200">
       {/* ---------- HEADER ---------- */}
       <div className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
@@ -392,7 +405,7 @@ const Chat: React.FC<ChatProps> = ({ chats, chatId, user, onlineUsers }) => {
           </button>
 
           {showEmoji && (
-            <div className="absolute bottom-16 right-0 z-50">
+            <div ref={emojiRef} className="absolute bottom-16 right-0 z-50">
               <EmojiPicker onEmojiClick={onEmojiClick} />
             </div>
           )}

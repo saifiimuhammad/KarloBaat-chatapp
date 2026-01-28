@@ -143,7 +143,7 @@ const AppLayout =
     /* ---------------------------------- */
 
     return (
-      <div className="min-h-screen">
+      <div className="h-[90vh]">
         <Title />
 
         <DeleteChatMenu

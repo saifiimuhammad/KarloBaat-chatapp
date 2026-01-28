@@ -130,6 +130,7 @@ const Login = () => {
               label="Username"
               placeholder="Enter username"
               value={username.value}
+              type="text"
               onChange={username.changeHandler}
               icon={<UserIcon size={16} />}
             />

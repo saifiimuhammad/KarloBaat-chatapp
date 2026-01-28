@@ -1,5 +1,5 @@
 import "./style.css";
-import { type FC, Suspense, lazy, useEffect } from "react";
+import { type FC, Suspense, lazy, useEffect, useRef } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import ProtectRoute from "./components/auth/ProtectRoute";
 import { LayoutLoader } from "./components/layout/Loaders";
@@ -41,6 +41,7 @@ interface User {
 
 const App: FC = () => {
   const { user, loader } = useSelector((state: RootState) => state.auth);
+
   const dispatch = useDispatch<AppDispatch>();
 
   const { pathname } = useLocation();
