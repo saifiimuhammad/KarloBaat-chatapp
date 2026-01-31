@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useInputValidation } from "6pp";
 import { useAsyncMutation } from "../../hooks/hooks";
 import {
+  useCancelFriendRequestMutation,
   useLazySearchUserQuery,
   useSendFriendRequestMutation,
 } from "../../redux/api/api";
@@ -14,6 +15,7 @@ interface User {
   _id: string;
   name: string;
   avatar: string;
+  requestSent: boolean;
 }
 
 interface RootState {
@@ -30,6 +32,9 @@ const Search: FC = () => {
   const [sendFriendRequest, isLoadingSendFriendRequest] = useAsyncMutation(
     useSendFriendRequestMutation,
   );
+  const [cancelFriendRequest, isLoadingCancelFriendRequest] = useAsyncMutation(
+    useCancelFriendRequestMutation,
+  );
 
   const search = useInputValidation("");
   const [users, setUsers] = useState<User[]>([]);
@@ -38,8 +43,38 @@ const Search: FC = () => {
   const addFriendHandler = useCallback(
     async (id: string) => {
       await sendFriendRequest("Sending friend request...", { userId: id });
+
+      // ✅ update local state immediately
+      setUsers((prev) =>
+        prev.map((user) =>
+          user._id === id ? { ...user, requestSent: true } : user,
+        ),
+      );
     },
     [sendFriendRequest],
+  );
+
+  const handleFriendAction = useCallback(
+    async (id: string, isAdded: boolean) => {
+      if (isAdded) {
+        await cancelFriendRequest("Canceling request...", { userId: id });
+
+        setUsers((prev) =>
+          prev.map((user) =>
+            user._id === id ? { ...user, requestSent: false } : user,
+          ),
+        );
+      } else {
+        await sendFriendRequest("Sending friend request...", { userId: id });
+
+        setUsers((prev) =>
+          prev.map((user) =>
+            user._id === id ? { ...user, requestSent: true } : user,
+          ),
+        );
+      }
+    },
+    [sendFriendRequest, cancelFriendRequest],
   );
 
   const handleSearchClose = () => dispatch(setIsSearch(false));
@@ -93,8 +128,13 @@ const Search: FC = () => {
               <UserItem
                 key={i._id}
                 user={i}
-                handler={addFriendHandler}
-                handlerIsLoading={isLoadingSendFriendRequest}
+                isAdded={i.requestSent}
+                handler={() => handleFriendAction(i._id, i.requestSent)}
+                handlerIsLoading={
+                  i.requestSent
+                    ? isLoadingCancelFriendRequest
+                    : isLoadingSendFriendRequest
+                }
               />
             ))
           ) : (

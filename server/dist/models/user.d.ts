@@ -9,6 +9,7 @@ export interface IUser {
     username: string;
     password: string;
     avatar: AvatarType;
+    sentFriendRequests?: string[];
 }
 export interface IUserWithId extends IUser {
     _id: string;

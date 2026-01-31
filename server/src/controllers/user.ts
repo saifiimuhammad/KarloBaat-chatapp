@@ -1,6 +1,10 @@
 import bcrypt from "bcryptjs";
 import { NextFunction, Request, Response } from "express";
-import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
+import {
+  NEW_REQUEST,
+  REFETCH_CHATS,
+  CANCEL_REQUEST,
+} from "../constants/events.js";
 import { getOtherMembers, IUserWithId } from "../lib/helper.js";
 import { TryCatch } from "../middlewares/error.js";
 import { Chat } from "../models/chat.js";
@@ -87,27 +91,44 @@ const logout = TryCatch(async (req: Request, res: Response) => {
 // --- SEARCH USERS ---
 const searchUser = TryCatch(async (req: Request, res: Response) => {
   const name = (req.query.name as string) || "";
+  const myId = (req as AuthenticatedRequest).user;
 
+  // 1. Users already in 1-1 chats (friends)
   const myChats = await Chat.find({
     groupChat: false,
-    members: (req as AuthenticatedRequest).user,
-  });
-  const allUsersFromMyChats = myChats.flatMap((chat) =>
-    chat.members.map((m) => m.toString()),
+    members: myId,
+  }).select("members");
+
+  const friendIds = new Set(
+    myChats.flatMap((chat) => chat.members.map((m) => m.toString())),
   );
 
-  const allUsersExceptMeAndFriends = await User.find({
-    _id: { $nin: allUsersFromMyChats },
-    name: { $regex: name, $options: "i" },
-  });
+  // 2. Users I already sent friend requests to
+  const sentRequests = await FriendRequest.find({
+    sender: myId,
+    status: "pending",
+  }).select("reciever");
 
-  const users = allUsersExceptMeAndFriends.map(({ _id, name, avatar }) => ({
-    _id: _id.toString(),
-    name,
-    avatar: avatar?.url,
+  const requestedIds = new Set(sentRequests.map((r) => r.reciever.toString()));
+
+  // 3. Search users (exclude me + friends)
+  const users = await User.find({
+    _id: { $ne: myId, $nin: [...friendIds] },
+    name: { $regex: name, $options: "i" },
+  }).select("name avatar");
+
+  // 4. Attach request status
+  const result = users.map((user) => ({
+    _id: user._id.toString(),
+    name: user.name,
+    avatar: user.avatar?.url,
+    requestSent: requestedIds.has(user._id.toString()),
   }));
 
-  res.status(200).json({ success: true, users });
+  res.status(200).json({
+    success: true,
+    users: result,
+  });
 });
 
 // --- SEND FRIEND REQUEST ---
@@ -132,6 +153,32 @@ const sendFriendRequest = TryCatch(
     emitEvent(req, NEW_REQUEST, [userId], null);
 
     res.status(200).json({ success: true, message: "Friend Request Sent" });
+  },
+);
+
+// --- CANCEL FRIEND REQUEST ---
+const cancelFriendRequest = TryCatch(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req.body;
+    const myId = (req as AuthenticatedRequest).user;
+
+    const request = await FriendRequest.findOne({
+      sender: myId,
+      reciever: userId,
+      status: "pending",
+    });
+
+    if (!request)
+      return next(new ErrorHandler("No pending request found", 404));
+
+    await request.deleteOne();
+
+    emitEvent(req, CANCEL_REQUEST, [userId], null);
+
+    res.status(200).json({
+      success: true,
+      message: "Friend request cancelled",
+    });
   },
 );
 
@@ -307,4 +354,5 @@ export {
   newUser,
   searchUser,
   sendFriendRequest,
+  cancelFriendRequest,
 };

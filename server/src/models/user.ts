@@ -14,6 +14,7 @@ export interface IUser {
   username: string;
   password: string;
   avatar: AvatarType;
+  sentFriendRequests?: string[];
 }
 
 export interface IUserWithId extends IUser {
@@ -30,6 +31,7 @@ const schema = new Schema<IUser>(
       public_id: { type: String, required: true },
       url: { type: String, required: true },
     },
+    sentFriendRequests: { type: [String], default: [] },
   },
   { timestamps: true },
 );

@@ -10,6 +10,7 @@ const schema = new Schema({
         public_id: { type: String, required: true },
         url: { type: String, required: true },
     },
+    sentFriendRequests: { type: [String], default: [] },
 }, { timestamps: true });
 schema.pre("save", async function (next) {
     if (!this.isModified("password"))

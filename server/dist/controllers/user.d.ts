@@ -9,10 +9,11 @@ declare const getMyProfile: (req: Request, res: Response, next: NextFunction) =>
 declare const logout: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const searchUser: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const sendFriendRequest: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const cancelFriendRequest: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const acceptFriendRequest: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const getAllNotifications: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const getMyFriends: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const fetchUserDetails: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const editProfile: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-export { acceptFriendRequest, editProfile, fetchUserDetails, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, };
+export { acceptFriendRequest, editProfile, fetchUserDetails, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, cancelFriendRequest, };
 //# sourceMappingURL=user.d.ts.map

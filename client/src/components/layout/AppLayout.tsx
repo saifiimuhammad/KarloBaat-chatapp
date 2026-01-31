@@ -127,6 +127,7 @@ const AppLayout =
 
     const onlineUsersListener = useCallback((data: string[]) => {
       setOnlineUsers(data);
+      console.log(data);
     }, []);
 
     const eventHandlers = {

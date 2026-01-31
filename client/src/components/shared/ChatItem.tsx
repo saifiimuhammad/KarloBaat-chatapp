@@ -20,7 +20,7 @@ interface ChatItemProps {
   handleDeleteChat: (
     e: React.MouseEvent,
     id: string,
-    isGroupChat: boolean
+    isGroupChat: boolean,
   ) => void;
 }
 
@@ -63,6 +63,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
             <span className="text-text-light/60 text-xs font-medium">
               9:31 AM
             </span>
+            <span>{isOnline ? "Online" : "Offline"}</span>
           </div>
           <p className="text-xs text-text-light/70 mt-1">No recent activity</p>
 

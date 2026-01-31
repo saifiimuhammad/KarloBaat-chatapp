@@ -58,12 +58,42 @@ const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
 
-  const isMobile = window.innerWidth <= 500;
+  const actionRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLDivElement>(null);
+
+  const isMobile = window.innerWidth <= 639;
 
   const { isSearch, isNotification, isNewGroup } = useSelector(
     (state: any) => state.misc,
   );
   const { notificationCount } = useSelector((state: any) => state.chat);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        actionRef.current &&
+        !actionRef.current.contains(event.target as Node)
+      ) {
+        setIsActionsOpen(false);
+      }
+
+      if (
+        toggleRef.current &&
+        !toggleRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isActionsOpen || isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActionsOpen, isDropdownOpen]);
 
   return (
     <>
@@ -172,7 +202,10 @@ const Header = () => {
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-zinc-200 z-50 overflow-hidden">
+                <div
+                  ref={toggleRef}
+                  className="absolute left-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-zinc-200 z-50 overflow-hidden"
+                >
                   <button
                     className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
                     onClick={() => {
@@ -211,7 +244,7 @@ const Header = () => {
 
           <div className="flex items-center">
             {/* Right (Mobile) */}
-            <div className="relative sm:hidden">
+            <div ref={actionRef} className="relative sm:hidden">
               <button
                 onClick={() => setIsActionsOpen((prev) => !prev)}
                 className="p-2 rounded-full hover:bg-secondary/20"

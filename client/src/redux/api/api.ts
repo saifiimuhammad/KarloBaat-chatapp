@@ -119,6 +119,15 @@ const api = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+    cancelFriendRequest: builder.mutation<string, SendFriendRequestBody>({
+      query: (body) => ({
+        url: "user/cancelrequest",
+        method: "PUT",
+        body,
+        credentials: "include",
+      }),
+      invalidatesTags: ["User"],
+    }),
     getNotifications: builder.query<Notification[], void>({
       query: () => ({
         url: "user/notifications",
@@ -252,6 +261,7 @@ export const {
   useMyChatsQuery,
   useLazySearchUserQuery,
   useSendFriendRequestMutation,
+  useCancelFriendRequestMutation,
   useGetNotificationsQuery,
   useAcceptFriendRequestMutation,
   useChatDetailsQuery,

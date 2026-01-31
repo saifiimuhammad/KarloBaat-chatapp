@@ -11,6 +11,7 @@ import {
   getMyFriends,
   fetchUserDetails,
   editProfile,
+  cancelFriendRequest,
 } from "../controllers/user.js";
 import { singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
@@ -50,6 +51,13 @@ router.put(
   acceptRequestValidator(),
   validateHandler,
   acceptFriendRequest,
+);
+
+router.put(
+  "/cancelrequest",
+  sendRequestValidator(),
+  validateHandler,
+  cancelFriendRequest,
 );
 
 router.get("/notifications", getAllNotifications);
