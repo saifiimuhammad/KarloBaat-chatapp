@@ -3,6 +3,7 @@
 @theme {
   /* font */
   --font-sans: "Roboto", "system-ui", sans-serif;
+  --font-landing: "Plus Jakarta Sans", "system-ui", sans-serif;
 
   /* colors */
   --color-primary: #628141;

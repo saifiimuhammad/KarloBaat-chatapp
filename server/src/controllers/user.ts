@@ -27,7 +27,7 @@ export interface AuthenticatedRequest extends Request {
 // --- NEW USER ---
 const newUser = TryCatch(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, username, password, bio } = req.body;
+    const { name, username, email, password, bio } = req.body;
     const file = (req as AuthenticatedRequest).file;
     if (!file) return next(new ErrorHandler("Please upload avatar", 400));
 
@@ -39,7 +39,14 @@ const newUser = TryCatch(
       url: result[0].url,
     };
 
-    const user = await User.create({ name, username, password, bio, avatar });
+    const user = await User.create({
+      name,
+      username,
+      email,
+      password,
+      bio,
+      avatar,
+    });
 
     sendToken(
       res,
@@ -47,6 +54,38 @@ const newUser = TryCatch(
       201,
       "User Created!",
     );
+  },
+);
+
+// --- VERIFY OTP ---
+const verifyOtp = TryCatch(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return next(new ErrorHandler("User not found", 404));
+
+    if (
+      user.emailVerif.otpHash &&
+      user.emailVerif.expiresAt &&
+      user.emailVerif.expiresAt < new Date()
+    ) {
+      return next(new ErrorHandler("OTP expired", 400));
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.emailVerif.otpHash!);
+    if (!isMatch) return next(new ErrorHandler("Invalid OTP", 400));
+
+    user.isEmailVerified = true;
+    user.emailVerif = {
+      ...user.emailVerif,
+      otpHash: undefined,
+      expiresAt: undefined,
+    };
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Email verified successfully" });
   },
 );
 

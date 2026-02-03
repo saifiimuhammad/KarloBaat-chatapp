@@ -17,8 +17,10 @@ import {
   IdCard as IdCardIcon,
   Pen as PenIcon,
   MessageCircleHeart as MessageCircleHeartIcon,
+  Mail as MailIcon,
 } from "lucide-react";
-import { usernameValidator } from "../utils/validators.js";
+import { emailValidator, usernameValidator } from "../utils/validators.js";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -28,7 +30,14 @@ const Login = () => {
 
   const name = useInputValidation("");
   const bio = useInputValidation("");
-  const username = useInputValidation("", usernameValidator);
+  const username = useInputValidation("", (val) => ({
+    ...usernameValidator(val),
+    errorMessage: usernameValidator(val).errorMessage || "",
+  }));
+  const email = useInputValidation("", (val) => ({
+    ...emailValidator(val),
+    errorMessage: emailValidator(val).errorMessage || "",
+  }));
   const password = useStrongPassword();
   const avatar = useFileHandler("single");
 
@@ -70,6 +79,7 @@ const Login = () => {
     formData.append("name", name.value);
     formData.append("bio", bio.value);
     formData.append("username", username.value);
+    formData.append("email", email.value);
     formData.append("password", password.value);
 
     try {
@@ -133,6 +143,7 @@ const Login = () => {
               type="text"
               onChange={username.changeHandler}
               icon={<UserIcon size={16} />}
+              className="mb-4"
             />
 
             <Input
@@ -142,8 +153,14 @@ const Login = () => {
               value={password.value}
               onChange={password.changeHandler}
               icon={<LockIcon size={16} />}
-              className="mb-3"
             />
+
+            <Link
+              to="/forgot-password"
+              className="text-xs underline text-text-light hover:text-text mt-2 mb-6 block text-right"
+            >
+              Forgot Password?
+            </Link>
 
             <Button disabled={isLoading} className="w-full">
               Continue <ArrowRightIcon className="ml-2" size={16} />
@@ -211,6 +228,16 @@ const Login = () => {
             />
             {username.error && (
               <p className="text-sm text-red-500">{username.error}</p>
+            )}
+            <Input
+              label="Email Address"
+              placeholder="Enter your email address"
+              value={email.value}
+              onChange={email.changeHandler}
+              icon={<MailIcon size={16} />}
+            />
+            {email.error && (
+              <p className="text-sm text-red-500">{email.error}</p>
             )}
 
             <Input

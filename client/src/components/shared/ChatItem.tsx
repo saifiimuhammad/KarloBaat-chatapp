@@ -63,7 +63,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
             <span className="text-text-light/60 text-xs font-medium">
               9:31 AM
             </span>
-            <span>{isOnline ? "Online" : "Offline"}</span>
+            {/* <span>{isOnline ? "Online" : "Offline"}</span> */}
           </div>
           <p className="text-xs text-text-light/70 mt-1">No recent activity</p>
 
@@ -75,9 +75,9 @@ const ChatItem: React.FC<ChatItemProps> = ({
           )}
         </div>
 
-        {/* {isOnline && (
+        {isOnline && (
           <span className="absolute right-4 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-green-500" />
-        )} */}
+        )}
       </motion.div>
     </Link>
   );

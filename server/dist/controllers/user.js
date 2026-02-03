@@ -9,7 +9,7 @@ import { cookieOptions, emitEvent, sendToken, uploadFilesToCloudinary, } from ".
 import { ErrorHandler } from "../utils/utility.js";
 // --- NEW USER ---
 const newUser = TryCatch(async (req, res, next) => {
-    const { name, username, password, bio } = req.body;
+    const { name, username, email, password, bio } = req.body;
     const file = req.file;
     if (!file)
         return next(new ErrorHandler("Please upload avatar", 400));
@@ -20,8 +20,40 @@ const newUser = TryCatch(async (req, res, next) => {
         public_id: result[0].public_id,
         url: result[0].url,
     };
-    const user = await User.create({ name, username, password, bio, avatar });
+    const user = await User.create({
+        name,
+        username,
+        email,
+        password,
+        bio,
+        avatar,
+    });
     sendToken(res, { ...user.toObject(), _id: user._id.toString() }, 201, "User Created!");
+});
+// --- VERIFY OTP ---
+const verifyOtp = TryCatch(async (req, res, next) => {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+    if (!user)
+        return next(new ErrorHandler("User not found", 404));
+    if (user.emailVerif.otpHash &&
+        user.emailVerif.expiresAt &&
+        user.emailVerif.expiresAt < new Date()) {
+        return next(new ErrorHandler("OTP expired", 400));
+    }
+    const isMatch = await bcrypt.compare(otp, user.emailVerif.otpHash);
+    if (!isMatch)
+        return next(new ErrorHandler("Invalid OTP", 400));
+    user.isEmailVerified = true;
+    user.emailVerif = {
+        ...user.emailVerif,
+        otpHash: undefined,
+        expiresAt: undefined,
+    };
+    await user.save();
+    res
+        .status(200)
+        .json({ success: true, message: "Email verified successfully" });
 });
 // --- LOGIN ---
 const login = TryCatch(async (req, res, next) => {

@@ -10,7 +10,7 @@ interface ProtectRouteProps {
 const ProtectRoute: FC<ProtectRouteProps> = ({
   children,
   user,
-  redirect = "/login",
+  redirect = "/welcome",
 }) => {
   if (!user) return <Navigate to={redirect} replace />;
 

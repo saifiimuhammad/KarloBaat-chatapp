@@ -18,7 +18,7 @@ export const Input: React.FC<InputProps> = ({
   const isPassword = type === "password";
 
   return (
-    <div className="relative flex flex-col gap-2">
+    <div className="relative flex flex-col gap-2 mb-0">
       {label && (
         <label className="text-sm font-medium text-text">{label}</label>
       )}

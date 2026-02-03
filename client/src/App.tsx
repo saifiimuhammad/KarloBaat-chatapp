@@ -12,6 +12,8 @@ import { SocketProvider } from "./socket";
 import Header from "./components/layout/Header";
 import EditProfile from "./pages/EditProfile";
 import type { RootState, AppDispatch } from "./redux/store";
+import Landing from "./pages/landing/Landing";
+import Features from "./pages/landing/Features";
 
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
@@ -46,7 +48,9 @@ const App: FC = () => {
 
   const { pathname } = useLocation();
 
-  const hideHeader = /^\/(admin|welcome|login|not-found)/.test(pathname);
+  const hideHeader = /^\/(admin|welcome|features|login|not-found)/.test(
+    pathname,
+  );
 
   useEffect(() => {
     axios
@@ -85,6 +89,9 @@ const App: FC = () => {
               </ProtectRoute>
             }
           />
+
+          <Route path="/welcome" element={<Landing />} />
+          <Route path="/features" element={<Features />} />
 
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
