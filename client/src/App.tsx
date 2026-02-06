@@ -12,14 +12,18 @@ import { SocketProvider } from "./socket";
 import Header from "./components/layout/Header";
 import EditProfile from "./pages/EditProfile";
 import type { RootState, AppDispatch } from "./redux/store";
-import Landing from "./pages/landing/Landing";
-import Features from "./pages/landing/Features";
+import ChangePassword from "./pages/ChangePassword";
 
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Groups = lazy(() => import("./pages/Groups"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+
+const Landing = lazy(() => import("./pages/landing/Landing"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const VerifyOtp = lazy(() => import("./pages/VerifyOtp"));
+const Features = lazy(() => import("./pages/landing/Features"));
 
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -48,9 +52,10 @@ const App: FC = () => {
 
   const { pathname } = useLocation();
 
-  const hideHeader = /^\/(admin|welcome|features|login|not-found)/.test(
-    pathname,
-  );
+  const hideHeader =
+    /^\/(admin|welcome|features|login|not-found|verify-email|forgot-password|change-password)/.test(
+      pathname,
+    );
 
   useEffect(() => {
     axios
@@ -89,6 +94,16 @@ const App: FC = () => {
               </ProtectRoute>
             }
           />
+          <Route
+            path="/verify-email"
+            element={
+              <ProtectRoute user={!user} redirect="/">
+                <VerifyOtp />
+              </ProtectRoute>
+            }
+          />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/change-password" element={<ChangePassword />} />
 
           <Route path="/welcome" element={<Landing />} />
           <Route path="/features" element={<Features />} />

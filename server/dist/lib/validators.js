@@ -21,8 +21,20 @@ const registerValidator = () => [
     body("password", "Please Enter Password").notEmpty(),
 ];
 const loginValidator = () => [
-    body("username", "Please Enter Username").notEmpty(),
+    body("identifier", "Please Enter Username or Email").notEmpty(),
     body("password", "Please Enter Password").notEmpty(),
+];
+const sendOtpValidator = () => [
+    body("email", "Please Enter Email").notEmpty().isEmail(),
+    body("type", "Please Enter Type").notEmpty(),
+];
+const verifyOtpValidator = () => [
+    body("email", "Please Enter Email").notEmpty().isEmail().normalizeEmail(),
+    body("otp", "Please Enter OTP").notEmpty(),
+];
+const changePasswordValidator = () => [
+    body("email", "Please Enter Email").notEmpty().isEmail().normalizeEmail(),
+    body("newPassword", "Please Enter New Password").notEmpty(),
 ];
 const newGroupValidator = () => [
     body("name", "Please Enter Name").notEmpty(),
@@ -69,5 +81,5 @@ const adminLoginValidator = () => [
     body("secretKey", "Please Enter Secret Key").notEmpty(),
 ];
 /* Export all validators and handler */
-export { registerValidator, validateHandler, loginValidator, newGroupValidator, addMemberValidator, removeMemberValidator, sendAttachementsValidator, chatIdValidator, renameValidator, sendRequestValidator, acceptRequestValidator, adminLoginValidator, };
+export { registerValidator, validateHandler, loginValidator, newGroupValidator, addMemberValidator, removeMemberValidator, sendAttachementsValidator, chatIdValidator, renameValidator, sendRequestValidator, acceptRequestValidator, adminLoginValidator, sendOtpValidator, verifyOtpValidator, changePasswordValidator, };
 //# sourceMappingURL=validators.js.map

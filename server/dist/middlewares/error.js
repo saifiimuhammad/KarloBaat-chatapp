@@ -1,4 +1,3 @@
-import { envMode } from "../app.js";
 const errorMiddleware = (err, _req, res, _next) => {
     err.message || (err.message = "Internal Server Error");
     err.statusCode || (err.statusCode = 500);
@@ -15,7 +14,8 @@ const errorMiddleware = (err, _req, res, _next) => {
     }
     return res.status(err.statusCode).json({
         success: false,
-        message: envMode === "DEVELOPMENT" ? err : err.message,
+        // message: envMode === "DEVELOPMENT" ? err : err.message,
+        message: err.message,
     });
 };
 const TryCatch = (passedFunc) => async (req, res, next) => {

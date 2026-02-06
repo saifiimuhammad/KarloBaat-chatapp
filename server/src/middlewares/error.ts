@@ -32,7 +32,8 @@ const errorMiddleware = (
 
   return res.status(err.statusCode).json({
     success: false,
-    message: envMode === "DEVELOPMENT" ? err : err.message,
+    // message: envMode === "DEVELOPMENT" ? err : err.message,
+    message: err.message,
   });
 };
 

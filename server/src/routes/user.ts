@@ -12,15 +12,22 @@ import {
   fetchUserDetails,
   editProfile,
   cancelFriendRequest,
+  verifyOtp,
+  sendOtp,
+  verifyPasswordOtp,
+  changePassword,
 } from "../controllers/user.js";
 import { singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import {
   acceptRequestValidator,
+  changePasswordValidator,
   loginValidator,
   registerValidator,
+  sendOtpValidator,
   sendRequestValidator,
   validateHandler,
+  verifyOtpValidator,
 } from "../lib/validators.js";
 
 const router: Router = express.Router();
@@ -33,6 +40,20 @@ router.post(
   newUser,
 );
 router.post("/login", loginValidator(), validateHandler, login);
+router.post("/send-otp", sendOtpValidator(), validateHandler, sendOtp);
+router.post("/verify-email", verifyOtpValidator(), validateHandler, verifyOtp);
+router.post(
+  "/verify-password-otp",
+  verifyOtpValidator(),
+  validateHandler,
+  verifyPasswordOtp,
+);
+router.post(
+  "/change-password",
+  changePasswordValidator(),
+  validateHandler,
+  changePassword,
+);
 
 // User must be logged in to access below routes
 router.use(isAuthenticated);

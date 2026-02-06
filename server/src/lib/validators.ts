@@ -32,8 +32,23 @@ const registerValidator = (): ValidationChain[] => [
 ];
 
 const loginValidator = (): ValidationChain[] => [
-  body("username", "Please Enter Username").notEmpty(),
+  body("identifier", "Please Enter Username or Email").notEmpty(),
   body("password", "Please Enter Password").notEmpty(),
+];
+
+const sendOtpValidator = (): ValidationChain[] => [
+  body("email", "Please Enter Email").notEmpty().isEmail(),
+  body("type", "Please Enter Type").notEmpty(),
+];
+
+const verifyOtpValidator = (): ValidationChain[] => [
+  body("email", "Please Enter Email").notEmpty().isEmail().normalizeEmail(),
+  body("otp", "Please Enter OTP").notEmpty(),
+];
+
+const changePasswordValidator = (): ValidationChain[] => [
+  body("email", "Please Enter Email").notEmpty().isEmail().normalizeEmail(),
+  body("newPassword", "Please Enter New Password").notEmpty(),
 ];
 
 const newGroupValidator = (): ValidationChain[] => [
@@ -103,4 +118,7 @@ export {
   sendRequestValidator,
   acceptRequestValidator,
   adminLoginValidator,
+  sendOtpValidator,
+  verifyOtpValidator,
+  changePasswordValidator,
 };

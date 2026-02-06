@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   icon?: React.ReactNode;
+  forgotPasswordLink?: boolean;
 }
 
 export const Input: React.FC<InputProps> = ({
   label,
   icon,
   type,
+  forgotPasswordLink,
   className = "",
   ...props
 }) => {
@@ -18,7 +21,7 @@ export const Input: React.FC<InputProps> = ({
   const isPassword = type === "password";
 
   return (
-    <div className="relative flex flex-col gap-2 mb-0">
+    <div className="relative flex flex-col gap-2">
       {label && (
         <label className="text-sm font-medium text-text">{label}</label>
       )}
@@ -41,6 +44,15 @@ export const Input: React.FC<InputProps> = ({
         `}
         {...props}
       />
+
+      {forgotPasswordLink && (
+        <Link
+          to="/forgot-password"
+          className="text-xs underline text-text-light hover:text-text mt-2 mb-6 block text-right"
+        >
+          Forgot Password?
+        </Link>
+      )}
 
       {isPassword && (
         <button

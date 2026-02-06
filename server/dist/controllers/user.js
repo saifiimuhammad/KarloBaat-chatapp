@@ -5,8 +5,9 @@ import { TryCatch } from "../middlewares/error.js";
 import { Chat } from "../models/chat.js";
 import { Request as FriendRequest } from "../models/request.js";
 import { User } from "../models/user.js";
-import { cookieOptions, emitEvent, sendToken, uploadFilesToCloudinary, } from "../utils/features.js";
+import { cookieOptions, emitEvent, sendOtpHandler, sendToken, uploadFilesToCloudinary, } from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
+import validator from "validator";
 // --- NEW USER ---
 const newUser = TryCatch(async (req, res, next) => {
     const { name, username, email, password, bio } = req.body;
@@ -20,7 +21,7 @@ const newUser = TryCatch(async (req, res, next) => {
         public_id: result[0].public_id,
         url: result[0].url,
     };
-    const user = await User.create({
+    await User.create({
         name,
         username,
         email,
@@ -28,11 +29,58 @@ const newUser = TryCatch(async (req, res, next) => {
         bio,
         avatar,
     });
-    sendToken(res, { ...user.toObject(), _id: user._id.toString() }, 201, "User Created!");
+    // sendToken(
+    //   res,
+    //   { ...user.toObject(), _id: user._id.toString() },
+    //   201,
+    //   "User Created!",
+    // );
+    res.status(201).json({
+        success: true,
+        message: "User Created! Please verify your email.",
+    });
+});
+// --- SEND OTP ---
+const sendOtp = TryCatch(async (req, res, next) => {
+    const { email, type } = req.body;
+    if (!["email", "password"].includes(type)) {
+        return next(new ErrorHandler("Invalid OTP type", 400));
+    }
+    const user = await User.findOne({ email });
+    if (!user)
+        return next(new ErrorHandler("User not found", 404));
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = await bcrypt.hash(otp, 12);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+    // Decide config dynamically
+    const otpConfig = type === "email"
+        ? {
+            verifField: "emailVerif",
+            subject: "KarloBaat OTP - Email Verification",
+        }
+        : {
+            verifField: "passwordVerif",
+            subject: "KarloBaat OTP - Password Reset",
+        };
+    // Send OTP
+    await sendOtpHandler(email, otp, otpConfig.subject);
+    // Update correct verification object
+    user[otpConfig.verifField] = {
+        otpHash,
+        expiresAt,
+        attempts: (user[otpConfig.verifField]?.attempts || 0) + 1,
+    };
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: `OTP sent for ${type} verification`,
+    });
 });
 // --- VERIFY OTP ---
 const verifyOtp = TryCatch(async (req, res, next) => {
     const { email, otp } = req.body;
+    console.log(email);
     const user = await User.findOne({ email });
     if (!user)
         return next(new ErrorHandler("User not found", 404));
@@ -49,21 +97,90 @@ const verifyOtp = TryCatch(async (req, res, next) => {
         ...user.emailVerif,
         otpHash: undefined,
         expiresAt: undefined,
+        attempts: 0,
     };
     await user.save();
-    res
-        .status(200)
-        .json({ success: true, message: "Email verified successfully" });
+    sendToken(res, { ...user.toObject(), _id: user._id.toString() }, 200, "Email verified successfully");
+});
+// --- VERIFY PASSWORD OTP ---
+const verifyPasswordOtp = TryCatch(async (req, res, next) => {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+    if (!user)
+        return next(new ErrorHandler("User not found", 404));
+    if (user.passwordVerif.otpHash &&
+        user.passwordVerif.expiresAt &&
+        user.passwordVerif.expiresAt < new Date()) {
+        return next(new ErrorHandler("OTP expired", 400));
+    }
+    const isMatch = await bcrypt.compare(otp, user.passwordVerif.otpHash);
+    if (!isMatch)
+        return next(new ErrorHandler("Invalid OTP", 400));
+    user.otpPasswordVerified = true;
+    user.passwordVerif = {
+        ...user.passwordVerif,
+        otpHash: undefined,
+        expiresAt: undefined,
+        attempts: 0,
+    };
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: "OTP verified successfully. You can now reset your password.",
+    });
+});
+// --- CHANGE PASSWORD ---
+const changePassword = TryCatch(async (req, res, next) => {
+    const { email, newPassword } = req.body;
+    const user = await User.findOne({ email });
+    if (!user)
+        return next(new ErrorHandler("User not found", 404));
+    if (!user.otpPasswordVerified) {
+        return next(new ErrorHandler("OTP not verified. Cannot change password.", 400));
+    }
+    // Update password
+    user.password = newPassword;
+    user.otpPasswordVerified = false;
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: "Password changed successfully",
+    });
 });
 // --- LOGIN ---
 const login = TryCatch(async (req, res, next) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username }).select("+password");
+    const { identifier, password } = req.body;
+    // Determine if input is email
+    const query = validator.isEmail(identifier)
+        ? { email: identifier }
+        : { username: identifier };
+    const user = await User.findOne(query).select("+password");
     if (!user)
         return next(new ErrorHandler("Invalid Username or Password", 404));
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
         return next(new ErrorHandler("Invalid Username or Password", 404));
+    // check if email is verified
+    if (!user.isEmailVerified) {
+        // send OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpHash = await bcrypt.hash(otp, 12);
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+        user.emailVerif = {
+            otpHash,
+            expiresAt,
+            attempts: (user.emailVerif?.attempts || 0) + 1,
+        };
+        await user.save();
+        await sendOtpHandler(user.email, otp, "KarloBaat OTP - Email Verification");
+        return res.status(200).json({
+            success: true,
+            email: user.email,
+            redirect: "/verify-email",
+            message: "Email not verified. OTP sent.",
+        });
+    }
+    // if verified, send token
     sendToken(res, { ...user.toObject(), _id: user._id.toString() }, 200, `Welcome back, ${user.name}`);
 });
 // --- GET PROFILE ---
@@ -274,5 +391,5 @@ const editProfile = TryCatch(async (req, res, next) => {
         user: updatedUser,
     });
 });
-export { acceptFriendRequest, editProfile, fetchUserDetails, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, cancelFriendRequest, };
+export { acceptFriendRequest, editProfile, fetchUserDetails, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, cancelFriendRequest, sendOtp, verifyOtp, verifyPasswordOtp, changePassword, };
 //# sourceMappingURL=user.js.map

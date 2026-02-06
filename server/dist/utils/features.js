@@ -4,6 +4,20 @@ import mongoose from "mongoose";
 import { v4 as uuid } from "uuid";
 import { getBase64, getSockets } from "../lib/helper.js";
 import { ErrorHandler } from "./utility.js";
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
+dotenv.config();
+const testAccount = await nodemailer.createTestAccount();
+const transporter = nodemailer.createTransport({
+    // host: "smtp.ethereal.email",
+    service: "gmail",
+    // port: 587,
+    // secure: false, // Use true for port 465, false for port 587
+    auth: {
+        user: process.env.GOOGLE_USER || testAccount.user,
+        pass: process.env.GOOGLE_PASS || testAccount.pass,
+    },
+});
 /* =======================
    Cookie Options
 ======================= */
@@ -68,5 +82,26 @@ const uploadFilesToCloudinary = async (files = []) => {
 const deleteFilesFromCloudinary = async (public_ids) => {
     // Delete files from cloudinary
 };
-export { connectDb, deleteFilesFromCloudinary, emitEvent, sendToken, uploadFilesToCloudinary, };
+const sendOtpHandler = async (email, otp, subject) => {
+    try {
+        await transporter.sendMail({
+            from: '"Muhammad Saif" <muhammadsaifarain786@gmail.com>',
+            to: email,
+            subject: subject,
+            text: `Your OTP is ${otp}`,
+            html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; text-align: center;">
+          <h2 style="color: #333;">Your OTP Code</h2>
+          <p style="font-size: 18px; color: #555;">Enter the following code to proceed:</p>
+          <p style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #000; margin: 20px 0;">${otp}</p>
+          <p style="font-size: 14px; color: #777;">This code will expire in 10 minutes.</p>
+          <hr style="margin: 20px 0;" />
+          <p style="font-size: 12px; color: #aaa;">If you did not request this, please ignore this email.</p>
+        </div>`,
+        });
+    }
+    catch (error) {
+        console.error("Error sending OTP email:", error);
+    }
+};
+export { connectDb, deleteFilesFromCloudinary, emitEvent, sendToken, uploadFilesToCloudinary, sendOtpHandler, };
 //# sourceMappingURL=features.js.map

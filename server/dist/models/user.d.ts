@@ -14,6 +14,7 @@ export interface IUser {
     username: string;
     email: string;
     isEmailVerified: boolean;
+    otpPasswordVerified: boolean;
     password: string;
     avatar: AvatarType;
     passwordVerif: VerifType;

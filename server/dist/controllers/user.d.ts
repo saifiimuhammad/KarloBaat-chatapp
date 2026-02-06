@@ -4,6 +4,10 @@ export interface AuthenticatedRequest extends Request {
     file?: Express.Multer.File;
 }
 declare const newUser: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const sendOtp: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const verifyOtp: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const verifyPasswordOtp: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+declare const changePassword: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const login: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const getMyProfile: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const logout: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -15,5 +19,5 @@ declare const getAllNotifications: (req: Request, res: Response, next: NextFunct
 declare const getMyFriends: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const fetchUserDetails: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 declare const editProfile: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-export { acceptFriendRequest, editProfile, fetchUserDetails, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, cancelFriendRequest, };
+export { acceptFriendRequest, editProfile, fetchUserDetails, getAllNotifications, getMyFriends, getMyProfile, login, logout, newUser, searchUser, sendFriendRequest, cancelFriendRequest, sendOtp, verifyOtp, verifyPasswordOtp, changePassword, };
 //# sourceMappingURL=user.d.ts.map

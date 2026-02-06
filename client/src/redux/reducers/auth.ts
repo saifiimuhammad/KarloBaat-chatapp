@@ -31,7 +31,9 @@ const authSlice = createSlice({
   reducers: {
     userExists: (state, action: PayloadAction<AdminUser>) => {
       state.user = action.payload;
+      console.log("State saved: ", state.user);
       state.loader = false;
+      console.log(state.user);
     },
     userNotExists: (state) => {
       state.user = null;
@@ -52,7 +54,7 @@ const authSlice = createSlice({
         getAdmin.fulfilled,
         (state, action: PayloadAction<AdminUser | null>) => {
           state.isAdmin = !!action.payload;
-        }
+        },
       )
       .addCase(getAdmin.rejected, (state) => {
         state.isAdmin = false;
@@ -62,7 +64,7 @@ const authSlice = createSlice({
         (state, action: PayloadAction<string>) => {
           state.isAdmin = false;
           toast.success(action.payload);
-        }
+        },
       )
       .addCase(adminLogout.rejected, (state, action) => {
         state.isAdmin = true;

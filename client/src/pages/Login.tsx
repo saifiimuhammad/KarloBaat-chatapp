@@ -10,20 +10,21 @@ import { Button } from "../components/ui/Button.js";
 import { Input } from "../components/ui/Input.js";
 
 import {
-  CameraIcon,
-  User as UserIcon,
-  Lock as LockIcon,
   ArrowRight as ArrowRightIcon,
+  CameraIcon,
   IdCard as IdCardIcon,
-  Pen as PenIcon,
-  MessageCircleHeart as MessageCircleHeartIcon,
+  Lock as LockIcon,
   Mail as MailIcon,
+  MessageCircleHeart as MessageCircleHeartIcon,
+  Pen as PenIcon,
+  User as UserIcon,
 } from "lucide-react";
 import { emailValidator, usernameValidator } from "../utils/validators.js";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [isLogin, setIsLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +41,7 @@ const Login = () => {
   }));
   const password = useStrongPassword();
   const avatar = useFileHandler("single");
+  const identifier = useInputValidation("");
 
   const toggleLogin = () => setIsLogin((p) => !p);
 
@@ -52,16 +54,47 @@ const Login = () => {
       const { data } = await axios.post(
         `${server}/api/v1/user/login`,
         {
-          username: username.value,
+          identifier: identifier.value,
           password: password.value,
         },
         { withCredentials: true },
       );
 
+      if (data.redirect === "/verify-email") {
+        navigate("/verify-email", {
+          state: { email: data.email, type: "email" },
+        });
+        toast.success(data.message, { id: toastId });
+        setIsLoading(false);
+        return;
+      }
       dispatch(userExists(data.user));
       toast.success(data.message, { id: toastId });
     } catch (err: any) {
+      console.log(err);
       toast.error(err?.response?.data?.message || "Error", { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendOtp = async (email: string) => {
+    const toastId = toast.loading("Signing up...");
+    setIsLoading(true);
+    try {
+      const { data } = await axios.post(
+        `${server}/api/v1/user/send-otp`,
+        {
+          email: email,
+          type: "email",
+        },
+        { withCredentials: true },
+      );
+      toast.success(data.message, { id: toastId });
+
+      navigate("/verify-email", { state: { email, type: "email" } });
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Error", { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -87,8 +120,10 @@ const Login = () => {
         withCredentials: true,
       });
 
-      dispatch(userExists(data.user));
+      // dispatch(userExists(data.user));
       toast.success(data.message, { id: toastId });
+
+      await handleSendOtp(email.value);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Error", { id: toastId });
     } finally {
@@ -137,30 +172,23 @@ const Login = () => {
         {isLogin ? (
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
-              label="Username"
-              placeholder="Enter username"
-              value={username.value}
+              label="Username/Email"
+              placeholder="Enter username or email address"
+              value={identifier.value}
               type="text"
-              onChange={username.changeHandler}
+              onChange={identifier.changeHandler}
               icon={<UserIcon size={16} />}
-              className="mb-4"
             />
 
             <Input
               label="Password"
               placeholder="Enter password"
               type="password"
+              forgotPasswordLink={true}
               value={password.value}
               onChange={password.changeHandler}
               icon={<LockIcon size={16} />}
             />
-
-            <Link
-              to="/forgot-password"
-              className="text-xs underline text-text-light hover:text-text mt-2 mb-6 block text-right"
-            >
-              Forgot Password?
-            </Link>
 
             <Button disabled={isLoading} className="w-full">
               Continue <ArrowRightIcon className="ml-2" size={16} />

@@ -15,5 +15,6 @@ interface UploadedFile {
 }
 declare const uploadFilesToCloudinary: (files?: any[]) => Promise<UploadedFile[]>;
 declare const deleteFilesFromCloudinary: (public_ids: string[]) => Promise<void>;
-export { connectDb, deleteFilesFromCloudinary, emitEvent, sendToken, uploadFilesToCloudinary, };
+declare const sendOtpHandler: (email: string, otp: string, subject: string) => Promise<void>;
+export { connectDb, deleteFilesFromCloudinary, emitEvent, sendToken, uploadFilesToCloudinary, sendOtpHandler, };
 //# sourceMappingURL=features.d.ts.map
